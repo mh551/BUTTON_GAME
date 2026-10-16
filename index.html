@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESP32 ビリビリゲーム コントローラー</title>
+    <title>Button GAME コントローラー</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -11,222 +11,219 @@
             color: #ffffff;
             margin: 0;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            text-align: center;
         }
-        h1 { font-size: 1.4rem; margin-bottom: 5px; color: #ff5252; text-align: center; }
-        .subtitle { font-size: 0.85rem; color: #aaa; margin-bottom: 20px; text-align: center; }
+        h1 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            color: #ff9800;
+        }
+        #status {
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            padding: 8px;
+            border-radius: 4px;
+            background-color: #333;
+        }
+        .connected { background-color: #2e7d32 !important; }
+        .disconnected { background-color: #c62828 !important; }
         
-        .card {
+        .section {
             background: #1e1e1e;
             border-radius: 12px;
             padding: 15px;
-            width: 100%;
-            max-width: 400px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            text-align: left;
         }
-        .card h2 { font-size: 1rem; margin-top: 0; color: #4facfe; }
-
+        h2 {
+            font-size: 1rem;
+            margin-top: 0;
+            color: #bbdefb;
+            text-align: center;
+        }
         button {
             width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
+            padding: 14px;
             font-size: 1rem;
             font-weight: bold;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
-            transition: 0.2s;
+            margin-bottom: 10px;
+            transition: opacity 0.2s;
         }
-
-        #connectBtn { background: #4facfe; color: #fff; margin-bottom: 10px; }
-        #connectBtn.connected { background: #4caf50; }
-
-        .btn-group {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
+        button:active {
+            opacity: 0.7;
         }
-        .option-btn {
-            flex: 1;
-            background: #333;
-            color: #fff;
-            padding: 10px;
-            font-size: 0.9rem;
-            border-radius: 6px;
-        }
-        .option-btn.active {
-            background: #ff5252;
-            color: #fff;
-        }
-
-        .mode-btn {
-            background: #2a2a2a;
-            color: #fff;
-            text-align: left;
-            margin-bottom: 8px;
-            padding: 12px;
-            border: 1px solid #444;
-        }
-        .mode-btn.active {
-            border-color: #ff5252;
-            background: #3a1c1c;
-        }
-        .mode-btn small { display: block; color: #aaa; font-weight: normal; margin-top: 3px; font-size: 0.8rem; }
-
-        #startBtn {
-            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+        #connectBtn {
+            background-color: #2196f3;
             color: white;
-            font-size: 1.2rem;
-            padding: 15px;
-            margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(255, 75, 43, 0.4);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
         }
-        #startBtn:disabled {
-            background: #444;
-            color: #777;
-            box-shadow: none;
-            cursor: not-allowed;
+        .mode-btn {
+            background-color: #37474f;
+            color: white;
+            text-align: left;
+            padding-left: 20px;
         }
-
-        #status {
-            margin-top: 10px;
-            font-size: 0.85rem;
-            color: #aaa;
+        .mode-btn.selected {
+            background-color: #ff5722 !important;
+            border: 2px solid #ffccbc;
+        }
+        .player-btn {
+            width: 30%;
+            display: inline-block;
+            background-color: #455a64;
+            color: white;
+            margin-right: 3%;
             text-align: center;
+        }
+        .player-btn:last-child {
+            margin-right: 0;
+        }
+        .player-btn.selected {
+            background-color: #4caf50 !important;
+            border: 2px solid #c8e6c9;
+        }
+        #startBtn {
+            background-color: #e91e63;
+            color: white;
+            font-size: 1.3rem;
+            padding: 18px;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(233, 30, 99, 0.4);
         }
     </style>
 </head>
 <body>
 
-    <h1>⚡ ビリビリ・バトル・システム</h1>
-    <div class="subtitle">ESP32 コントロールパネル</div>
+    <h1>Button GAME コントローラー</h1>
+    <div id="status" class="disconnected">未接続</div>
 
-    <!-- 接続カード -->
-    <div class="card">
-        <button id="connectBtn" onclick="connectBluetooth()">ESP32にBluetooth接続</button>
-        <div id="status">未接続</div>
-    </div>
+    <button id="connectBtn" onclick="toggleConnection()">Bluetooth接続</button>
 
-    <!-- 参加人数選択 -->
-    <div class="card" id="playersCard">
-        <h2>👥 参加人数 (マルチプレイ用)</h2>
-        <div class="btn-group">
-            <button class="option-btn" onclick="setPlayers(2)">2人</button>
-            <button class="option-btn" onclick="setPlayers(3)">3人</button>
-            <button class="option-btn active" onclick="setPlayers(4)">4人</button>
+    <div class="section">
+        <h2>参加人数 (マルチプレイ用)</h2>
+        <div style="text-align: center;">
+            <button class="player-btn selected" onclick="selectPlayers(2, this)">2人</button>
+            <button class="player-btn" onclick="selectPlayers(3, this)">3人</button>
+            <button class="player-btn" onclick="selectPlayers(4, this)">4人</button>
         </div>
     </div>
 
-    <!-- ゲームモード選択 -->
-    <div class="card">
-        <h2>🎮 ゲームモード選択</h2>
-        <button class="mode-btn active" id="mode1Btn" onclick="setMode(1)">
-            モード1：遅咲きタイムアタック
-            <small>ブザー後に一番遅かった人、またはフライングした人がビリビリ！</small>
-        </button>
-        <button class="mode-btn" id="mode2Btn" onclick="setMode(2)">
-            モード2：連打サバイバル
-            <small>目標回数に向けた連打勝負！ 勝者以外全員ビリビリ！</small>
-        </button>
-        <button class="mode-btn" id="mode3Btn" onclick="setMode(3)">
-            モード3：加速ルーレット
-            <small>次々点滅するボタン。時間内に押せないとビリビリ！</small>
-        </button>
-        <button class="mode-btn" id="mode4Btn" onclick="setMode(4)">
-            モード4：1人プレイアタック
-            <small>制限時間60秒の限界ヒッティング（1人専用）</small>
-        </button>
+    <div class="section">
+        <h2>ゲームモード選択</h2>
+        <button class="mode-btn selected" id="mBtn1" onclick="selectMode(1, this)">1. 遅咲きタイムアタック</button>
+        <button class="mode-btn" id="mBtn2" onclick="selectMode(2, this)">2. 連打サバイバル</button>
+        <button class="mode-btn" id="mBtn3" onclick="selectMode(3, this)">3. 加速ルーレット</button>
+        <button class="mode-btn" id="mBtn4" onclick="selectMode(4, this)">4. 最多連打サバイバル（1位以外罰）</button>
+        <button class="mode-btn" id="mBtn5" onclick="selectMode(5, this)">5. 1人プレイ両手連打アタック</button>
     </div>
 
-    <!-- スタートボタン -->
-    <div class="card">
-        <button id="startBtn" onclick="sendGameConfig()" disabled>▶ ゲームスタート！</button>
-    </div>
+    <button id="startBtn" onclick="sendGameStart()">🚀 ゲームスタート！！</button>
 
     <script>
-        // BLEの設定（ESP32側のUUIDに合わせて変更可能）
-        const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
-        const CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a9";
+        const UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+        const UART_RX_CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
 
         let bluetoothDevice = null;
-        let pCharacteristic = null;
+        let rxCharacteristic = null;
 
-        let selectedPlayers = 4;
+        // 現在選ばれている設定を保持
         let selectedMode = 1;
+        let selectedPlayers = 2;
+
+        async function toggleConnection() {
+            if (!bluetoothDevice || !bluetoothDevice.gatt.connected) {
+                await connectBluetooth();
+            } else {
+                await disconnectBluetooth();
+            }
+        }
 
         async function connectBluetooth() {
             try {
-                document.getElementById('status').innerText = "デバイスを検索中...";
+                document.getElementById('status').innerText = "接続中...";
+                
+                // 「Button GAME」という名前のデバイスを直接フィルタリングして探す
                 bluetoothDevice = await navigator.bluetooth.requestDevice({
-                    filters: [{ services: [SERVICE_UUID] }]
+                    filters: [{ name: 'Button GAME' }],
+                    optionalServices: [UART_SERVICE_UUID]
                 });
 
+                bluetoothDevice.addEventListener('gattservicedisconnected', onDisconnected);
+
                 const server = await bluetoothDevice.gatt.connect();
-                const service = await server.getPrimaryService(SERVICE_UUID);
-                pCharacteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+                const service = await server.getPrimaryService(UART_SERVICE_UUID);
+                rxCharacteristic = await service.getCharacteristic(UART_RX_CHARACTERISTIC_UUID);
 
-                document.getElementById('connectBtn').innerText = "接続完了 ✓";
-                document.getElementById('connectBtn').classList.add('connected');
-                document.getElementById('status').innerText = "ESP32と接続しました";
-                document.getElementById('startBtn').disabled = false;
+                document.getElementById('status').innerText = "接続完了！";
+                document.getElementById('status').className = "connected";
+                document.getElementById('connectBtn').innerText = "切断する";
 
-                bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
             } catch (error) {
-                console.error(error);
-                document.getElementById('status').innerText = "接続失敗・キャンセルされました";
+                console.log("接続エラー: ", error);
+                document.getElementById('status').innerText = "未接続（キャンセルまたは失敗）";
+                document.getElementById('status').className = "disconnected";
+            }
+        }
+
+        function disconnectBluetooth() {
+            if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+                bluetoothDevice.gatt.disconnect();
             }
         }
 
         function onDisconnected() {
-            document.getElementById('connectBtn').innerText = "ESP32にBluetooth接続";
-            document.getElementById('connectBtn').classList.remove('connected');
-            document.getElementById('status').innerText = "切断されました";
-            document.getElementById('startBtn').disabled = true;
+            document.getElementById('status').innerText = "未接続";
+            document.getElementById('status').className = "disconnected";
+            document.getElementById('connectBtn').innerText = "Bluetooth接続";
+            bluetoothDevice = null;
+            rxCharacteristic = null;
         }
 
-        function setPlayers(num) {
-            selectedPlayers = num;
-            const buttons = document.querySelectorAll('#playersCard .option-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-        }
-
-        function setMode(mode) {
-            selectedMode = mode;
-            for (let i = 1; i <= 4; i++) {
-                document.getElementById(`mode{i}Btn`?.replace('{i}', i)).classList.remove('active');
+        async function sendData(dataStr) {
+            if (!rxCharacteristic) {
+                alert("ESP32に接続されていません！上部の「Bluetooth接続」を押してください。");
+                return false;
             }
-            document.getElementById(`mode${mode}Btn`).classList.add('active');
-
-            // モード4は1人専用なので人数選択を無効化または1人に固定する見た目にする
-            const playersCard = document.getElementById('playersCard');
-            if (mode === 4) {
-                playersCard.style.opacity = "0.4";
-            } else {
-                playersCard.style.opacity = "1.0";
-            }
-        }
-
-        async function sendGameConfig() {
-            if (!pCharacteristic) {
-                alert("Bluetoothが接続されていません！");
-                return;
-            }
-
-            // 送信データフォーマット: "モード,人数" (例: "1,4" や "4,1")
-            let playersToSend = (selectedMode === 4) ? 1 : selectedPlayers;
-            let dataString = `${selectedMode},${playersToSend}`;
-            let encoder = new TextEncoder();
-
             try {
-                await pCharacteristic.writeValue(encoder.encode(dataString));
-                document.getElementById('status').innerText = `送信成功: モード${selectedMode} (${playersToSend}人)`;
+                const encoder = new TextEncoder();
+                await rxCharacteristic.writeValue(encoder.encode(dataStr + "\n"));
+                console.log("送信成功: " + dataStr);
+                return true;
             } catch (error) {
-                console.error(error);
-                document.getElementById('status').innerText = "データの送信に失敗しました";
+                console.log("送信エラー: ", error);
+                alert("送信に失敗しました。");
+                return false;
             }
+        }
+
+        function selectMode(modeNum, elem) {
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('selected'));
+            elem.classList.add('selected');
+            selectedMode = modeNum;
+        }
+
+        function selectPlayers(num, elem) {
+            document.querySelectorAll('.player-btn').forEach(btn => btn.classList.remove('selected'));
+            elem.classList.add('selected');
+            selectedPlayers = num;
+        }
+
+        // 「ゲームスタート」ボタンを押したときに、人数とモードをまとめてESP32へ送信！
+        async function sendGameStart() {
+            // まとめてコマンド送信
+            let success = await sendData(`PLAYERS:${selectedPlayers}`);
+            if (!success) return;
+            
+            // 少しウェイトを挟んでモードを送信
+            await new Promise(resolve => setTimeout(resolve, 100));
+            await sendData(`MODE:${selectedMode}`);
+
+            alert(`【送信完了】 モード ${selectedMode} / ${selectedPlayers}人 でスタートします！`);
         }
     </script>
 </body>
