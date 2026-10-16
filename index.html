@@ -13,21 +13,101 @@
             padding: 20px;
             text-align: center;
         }
-        h1 {
-            font-size: 1.2rem;
-            margin-bottom: 5px;
-            color: #ff9800;
-        }
-        #status {
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-            padding: 8px;
-            border-radius: 4px;
-            background-color: #333;
-        }
+        h1 { font-size: 1.2rem; margin-bottom: 5px; color: #ff9800; }
+        #status { font-size: 0.9rem; margin-bottom: 15px; padding: 8px; border-radius: 4px; background-color: #333; }
         .connected { background-color: #2e7d32 !important; }
         .disconnected { background-color: #c62828 !important; }
         
+        .view { display: none; }
+        .view.active { display: block; }
+
+        #gameView {
+            background: #1e1e1e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        #dynamicDisplay {
+            background-color: #263238;
+            border: 2px solid #546e7a;
+            border-radius: 12px;
+            padding: 25px 10px;
+            margin: 20px 0;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #bigMainText {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffeb3b;
+            margin: 0;
+        }
+        #subText {
+            font-size: 1.1rem;
+            color: #b0bec5;
+            margin-top: 10px;
+        }
+
+        /* プレイヤー名入力フォームのスタイル */
+        .name-input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .name-input-group label {
+            width: 50px;
+            font-weight: bold;
+            color: #bbdefb;
+            text-align: left;
+        }
+        .name-input-group input {
+            flex: 1;
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 6px;
+            border: 1px solid #546e7a;
+            background-color: #263238;
+            color: white;
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .score-card {
+            background: #37474f;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            word-break: break-all;
+        }
+        .score-card span {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #4caf50;
+            display: block;
+            margin-top: 5px;
+        }
+
+        #liveAlertBox {
+            background-color: #b71c1c;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
         .section {
             background: #1e1e1e;
             border-radius: 12px;
@@ -36,12 +116,7 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             text-align: left;
         }
-        h2 {
-            font-size: 1rem;
-            margin-top: 0;
-            color: #bbdefb;
-            text-align: center;
-        }
+        h2 { font-size: 1rem; margin-top: 0; color: #bbdefb; text-align: center; }
         button {
             width: 100%;
             padding: 14px;
@@ -51,50 +126,17 @@
             border-radius: 8px;
             cursor: pointer;
             margin-bottom: 10px;
-            transition: opacity 0.2s;
         }
-        button:active {
-            opacity: 0.7;
-        }
-        #connectBtn {
-            background-color: #2196f3;
-            color: white;
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-        }
-        .mode-btn {
-            background-color: #37474f;
-            color: white;
-            text-align: left;
-            padding-left: 20px;
-        }
-        .mode-btn.selected {
-            background-color: #ff5722 !important;
-            border: 2px solid #ffccbc;
-        }
-        .player-btn {
-            width: 30%;
-            display: inline-block;
-            background-color: #455a64;
-            color: white;
-            margin-right: 3%;
-            text-align: center;
-        }
-        .player-btn:last-child {
-            margin-right: 0;
-        }
-        .player-btn.selected {
-            background-color: #4caf50 !important;
-            border: 2px solid #c8e6c9;
-        }
-        #startBtn {
-            background-color: #e91e63;
-            color: white;
-            font-size: 1.3rem;
-            padding: 18px;
-            margin-top: 10px;
-            box-shadow: 0 4px 10px rgba(233, 30, 99, 0.4);
-        }
+        button:active { opacity: 0.7; }
+        #connectBtn { background-color: #2196f3; color: white; font-size: 1.1rem; margin-bottom: 15px; }
+        .mode-btn { background-color: #37474f; color: white; text-align: left; padding-left: 20px; }
+        .mode-btn.selected { background-color: #ff5722 !important; border: 2px solid #ffccbc; }
+        .player-btn { width: 30%; display: inline-block; background-color: #455a64; color: white; margin-right: 3%; text-align: center; }
+        .player-btn:last-child { margin-right: 0; }
+        .player-btn.selected { background-color: #4caf50 !important; border: 2px solid #c8e6c9; }
+        #startBtn { background-color: #e91e63; color: white; font-size: 1.3rem; padding: 18px; margin-top: 10px; }
+        .back-btn { background-color: #78909c; color: white; font-size: 1.1rem; margin-top: 20px; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
@@ -104,42 +146,106 @@
 
     <button id="connectBtn" onclick="toggleConnection()">Bluetooth接続</button>
 
-    <div class="section">
-        <h2>参加人数 (マルチプレイ用)</h2>
-        <div style="text-align: center;">
-            <button class="player-btn selected" onclick="selectPlayers(2, this)">2人</button>
-            <button class="player-btn" onclick="selectPlayers(3, this)">3人</button>
-            <button class="player-btn" onclick="selectPlayers(4, this)">4人</button>
+    <!-- ================= 1. メニュー画面 ================= -->
+    <div id="menuView" class="view active">
+        
+        <!-- プレイヤー名設定セクション -->
+        <div class="section" id="nameSection">
+            <h2>プレイヤー名設定</h2>
+            <div class="name-input-group"><label>P1</label><input type="text" id="p1Name" value="プレイヤー1"></div>
+            <div class="name-input-group"><label>P2</label><input type="text" id="p2Name" value="プレイヤー2"></div>
+            <div class="name-input-group" id="p3Group"><label>P3</label><input type="text" id="p3Name" value="プレイヤー3"></div>
+            <div class="name-input-group" id="p4Group"><label>P4</label><input type="text" id="p4Name" value="プレイヤー4"></div>
         </div>
+
+        <div class="section" id="playerSection">
+            <h2>参加人数 (マルチプレイ用)</h2>
+            <div style="text-align: center;">
+                <button class="player-btn selected" onclick="selectPlayers(2, this)">2人</button>
+                <button class="player-btn" onclick="selectPlayers(3, this)">3人</button>
+                <button class="player-btn" onclick="selectPlayers(4, this)">4人</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>ゲームモード別設定</h2>
+            <button class="mode-btn selected" id="mBtn1" onclick="selectMode(1, this)">1. 遅咲きタイムアタック</button>
+            <button class="mode-btn" id="mBtn2" onclick="selectMode(2, this)">2. 連打サバイバル</button>
+            <button class="mode-btn" id="mBtn3" onclick="selectMode(3, this)">3. 加速ルーレット</button>
+            <button class="mode-btn" id="mBtn4" onclick="selectMode(4, this)">4. 最多連打サバイバル（1位以外罰）</button>
+            <button class="mode-btn" id="mBtn5" onclick="selectMode(5, this)">5. 1人プレイ両手連打アタック</button>
+        </div>
+
+        <button id="startBtn" onclick="sendGameStart()">🚀 ゲームスタート！！</button>
     </div>
 
-    <div class="section">
-        <h2>ゲームモード選択</h2>
-        <button class="mode-btn selected" id="mBtn1" onclick="selectMode(1, this)">1. 遅咲きタイムアタック</button>
-        <button class="mode-btn" id="mBtn2" onclick="selectMode(2, this)">2. 連打サバイバル</button>
-        <button class="mode-btn" id="mBtn3" onclick="selectMode(3, this)">3. 加速ルーレット</button>
-        <button class="mode-btn" id="mBtn4" onclick="selectMode(4, this)">4. 最多連打サバイバル（1位以外罰）</button>
-        <button class="mode-btn" id="mBtn5" onclick="selectMode(5, this)">5. 1人プレイ両手連打アタック</button>
-    </div>
+    <!-- ================= 2. プレイ中ライブモニター画面 ================= -->
+    <div id="gameView" class="view">
+        <h2 id="activeModeTitle">⚔️ ゲームライブモニター</h2>
+        
+        <div id="liveAlertBox">スタンバイ中...</div>
 
-    <button id="startBtn" onclick="sendGameStart()">🚀 ゲームスタート！！</button>
+        <div id="dynamicDisplay">
+            <p id="bigMainText">待機中...</p>
+            <p id="subText">ESP32からの信号を待っています</p>
+        </div>
+
+        <button class="back-btn" onclick="returnToMenu()">🏠 メニューに戻る</button>
+    </div>
 
     <script>
         const UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
         const UART_RX_CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+        const UART_TX_CHARACTERISTIC_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 
         let bluetoothDevice = null;
         let rxCharacteristic = null;
+        let txCharacteristic = null;
 
-        // 現在選ばれている設定を保持
         let selectedMode = 1;
         let selectedPlayers = 2;
+        let playerNames = ["プレイヤー1", "プレイヤー2", "プレイヤー3", "プレイヤー4"];
+
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playBeep(type) {
+            initAudio();
+            if (!audioCtx) return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            if (type === 0) {
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            } else {
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+            }
+
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
 
         async function toggleConnection() {
             if (!bluetoothDevice || !bluetoothDevice.gatt.connected) {
                 await connectBluetooth();
             } else {
-                await disconnectBluetooth();
+                disconnectBluetooth();
             }
         }
 
@@ -147,7 +253,6 @@
             try {
                 document.getElementById('status').innerText = "接続中...";
                 
-                // 「Button GAME」という名前のデバイスを直接フィルタリングして探す
                 bluetoothDevice = await navigator.bluetooth.requestDevice({
                     filters: [{ name: 'Button GAME' }],
                     optionalServices: [UART_SERVICE_UUID]
@@ -158,15 +263,16 @@
                 const server = await bluetoothDevice.gatt.connect();
                 const service = await server.getPrimaryService(UART_SERVICE_UUID);
                 rxCharacteristic = await service.getCharacteristic(UART_RX_CHARACTERISTIC_UUID);
+                txCharacteristic = await service.getCharacteristic(UART_TX_CHARACTERISTIC_UUID);
 
-                document.getElementById('status').innerText = "接続完了！";
-                document.getElementById('status').className = "connected";
-                document.getElementById('connectBtn').innerText = "切断する";
+                await txCharacteristic.startNotifications();
+                txCharacteristic.addEventListener('characteristicvaluechanged', handleNotifications);
+
+                updateConnectionUI(true);
 
             } catch (error) {
                 console.log("接続エラー: ", error);
-                document.getElementById('status').innerText = "未接続（キャンセルまたは失敗）";
-                document.getElementById('status').className = "disconnected";
+                updateConnectionUI(false);
             }
         }
 
@@ -174,29 +280,130 @@
             if (bluetoothDevice && bluetoothDevice.gatt.connected) {
                 bluetoothDevice.gatt.disconnect();
             }
+            onDisconnected();
+        }
+
+        function updateConnectionUI(isConnected) {
+            const statusDiv = document.getElementById('status');
+            const connectBtn = document.getElementById('connectBtn');
+
+            if (isConnected) {
+                statusDiv.innerText = "接続完了！";
+                statusDiv.className = "connected";
+                connectBtn.innerText = "切断する";
+            } else {
+                statusDiv.innerText = "未接続";
+                statusDiv.className = "disconnected";
+                connectBtn.innerText = "Bluetooth接続";
+                returnToMenu();
+            }
         }
 
         function onDisconnected() {
-            document.getElementById('status').innerText = "未接続";
-            document.getElementById('status').className = "disconnected";
-            document.getElementById('connectBtn').innerText = "Bluetooth接続";
+            updateConnectionUI(false);
             bluetoothDevice = null;
             rxCharacteristic = null;
+            txCharacteristic = null;
+        }
+
+        function handleNotifications(event) {
+            const value = new TextDecoder().decode(event.target.value);
+            const alertBox = document.getElementById('liveAlertBox');
+            const bigText = document.getElementById('bigMainText');
+            const subText = document.getElementById('subText');
+            
+            console.log("受信データ: ", value);
+
+            if (value.startsWith("NOTOUCH:")) {
+                let pIndex = parseInt(value.split(":")[1].replace("P", "")) - 1;
+                let name = playerNames[pIndex] || `プレイヤー${pIndex+1}`;
+                alertBox.style.display = "block";
+                alertBox.style.backgroundColor = "#d32f2f";
+                alertBox.innerText = `⚠️ ${name} さん、鉄板に手を置いてください！`;
+                return;
+            } 
+            else if (value.startsWith("DISCONNECT:")) {
+                let pIndex = parseInt(value.split(":")[1].replace("P", "")) - 1;
+                let name = playerNames[pIndex] || `プレイヤー${pIndex+1}`;
+                alertBox.style.display = "block";
+                alertBox.style.backgroundColor = "#c62828";
+                alertBox.innerText = `🚨 ${name} が手を離しました！ゲーム中止！`;
+                return;
+            }
+            else if (value === "STATUS:READY") {
+                alertBox.style.display = "block";
+                alertBox.style.backgroundColor = "#2e7d32";
+                alertBox.innerText = "✨ 全員セット完了！";
+                return;
+            }
+
+            alertBox.style.display = "none";
+
+            if (selectedMode === 1) {
+                if (value === "STATE:WAITING") {
+                    bigText.style.color = "#ff5722";
+                    bigText.innerText = "🤫 静かに！！";
+                    subText.innerText = "合図が出るまで我慢しろ！";
+                } else if (value === "STATE:SIGNAL") {
+                    bigText.style.color = "#4caf50";
+                    bigText.innerText = "⚡ 今だ！！押せ！！";
+                    subText.innerText = "";
+                }
+            } 
+            else if (selectedMode === 2) {
+                if (value.startsWith("TARGET:")) {
+                    let count = value.split(":")[1];
+                    bigText.style.color = "#ffeb3b";
+                    bigText.innerText = `🎯 目標: ${count} 回`;
+                    subText.innerText = "この回数を目指して連打！";
+                }
+            } 
+            else if (selectedMode === 3) {
+                if (value.startsWith("ROULETTE:")) {
+                    let pIndex = parseInt(value.split(":")[1].replace("P", "")) - 1;
+                    let name = playerNames[pIndex] || `プレイヤー${pIndex+1}`;
+                    bigText.style.color = "#03a9f4";
+                    bigText.innerText = `🎯 ${name}`;
+                    subText.innerText = "に決定！制限時間内に押せ！";
+                }
+            } 
+            else if (selectedMode === 4) {
+                if (value.startsWith("SCORE:")) {
+                    let scores = value.split(":")[1].split(",");
+                    let html = `<div class="score-grid">`;
+                    for (let i = 0; i < currentPlayers; i++) {
+                        let name = playerNames[i] || `P${i+1}`;
+                        let score = scores[i] || 0;
+                        html += `<div class="score-card">${name}<br><span>${score}</span>回</div>`;
+                    }
+                    html += `</div>`;
+                    document.getElementById('dynamicDisplay').innerHTML = html;
+                }
+            } 
+            else if (selectedMode === 5) {
+                if (value.startsWith("COUNTDOWN:")) {
+                    let sec = value.split(":")[1];
+                    bigText.style.color = "#ff9800";
+                    bigText.innerText = `⏳ ${sec}`;
+                    subText.innerText = "まもなくスタート！";
+                    playBeep(0);
+                } else if (value.startsWith("SOLO_SCORE:")) {
+                    let score = value.split(":")[1];
+                    bigText.style.color = "#4caf50";
+                    bigText.innerText = `${score} 回`;
+                    subText.innerText = "両手連打アタック中！";
+                }
+            }
         }
 
         async function sendData(dataStr) {
-            if (!rxCharacteristic) {
-                alert("ESP32に接続されていません！上部の「Bluetooth接続」を押してください。");
-                return false;
-            }
+            if (!rxCharacteristic) return false;
             try {
                 const encoder = new TextEncoder();
                 await rxCharacteristic.writeValue(encoder.encode(dataStr + "\n"));
-                console.log("送信成功: " + dataStr);
                 return true;
             } catch (error) {
                 console.log("送信エラー: ", error);
-                alert("送信に失敗しました。");
                 return false;
             }
         }
@@ -205,25 +412,66 @@
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('selected'));
             elem.classList.add('selected');
             selectedMode = modeNum;
+
+            const playerSection = document.getElementById('playerSection');
+            const nameSection = document.getElementById('nameSection');
+            if (modeNum === 5) {
+                playerSection.classList.add('hidden');
+                nameSection.classList.add('hidden');
+            } else {
+                playerSection.classList.remove('hidden');
+                nameSection.classList.remove('hidden');
+            }
         }
 
         function selectPlayers(num, elem) {
             document.querySelectorAll('.player-btn').forEach(btn => btn.classList.remove('selected'));
             elem.classList.add('selected');
             selectedPlayers = num;
+
+            // 参加人数に応じて入力欄の表示/非表示を切り替え
+            document.getElementById('p3Group').style.display = (num >= 3) ? 'flex' : 'none';
+            document.getElementById('p4Group').style.display = (num >= 4) ? 'flex' : 'none';
         }
 
-        // 「ゲームスタート」ボタンを押したときに、人数とモードをまとめてESP32へ送信！
         async function sendGameStart() {
-            // まとめてコマンド送信
-            let success = await sendData(`PLAYERS:${selectedPlayers}`);
-            if (!success) return;
-            
-            // 少しウェイトを挟んでモードを送信
-            await new Promise(resolve => setTimeout(resolve, 100));
-            await sendData(`MODE:${selectedMode}`);
+            initAudio();
 
-            alert(`【送信完了】 モード ${selectedMode} / ${selectedPlayers}人 でスタートします！`);
+            // 入力されたプレイヤー名を取得して配列に保存
+            playerNames[0] = document.getElementById('p1Name').value || "プレイヤー1";
+            playerNames[1] = document.getElementById('p2Name').value || "プレイヤー2";
+            playerNames[2] = document.getElementById('p3Name').value || "プレイヤー3";
+            playerNames[3] = document.getElementById('p4Name').value || "プレイヤー4";
+
+            document.getElementById('menuView').classList.remove('active');
+            document.getElementById('gameView').classList.add('active');
+            document.getElementById('activeModeTitle').innerText = `⚔️ モード ${selectedMode} ライブモニター`;
+
+            const display = document.getElementById('dynamicDisplay');
+            if (selectedMode === 4) {
+                let html = `<div class="score-grid">`;
+                for (let i = 0; i < selectedPlayers; i++) {
+                    html += `<div class="score-card">${playerNames[i]}<br><span>0</span>回</div>`;
+                }
+                html += `</div>`;
+                display.innerHTML = html;
+            } else if (selectedMode === 5) {
+                display.innerHTML = `<p id="bigMainText" style="color:#ff9800;">⏳ 3</p><p id="subText">まもなくスタート！</p>`;
+                playBeep(0);
+            } else {
+                display.innerHTML = `<p id="bigMainText" style="color:#ffeb3b;">待機中...</p><p id="subText">鉄板に手を置いてください</p>`;
+            }
+
+            if (selectedMode !== 5) {
+                await sendData(`PLAYERS:${selectedPlayers}`);
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            await sendData(`MODE:${selectedMode}`);
+        }
+
+        function returnToMenu() {
+            document.getElementById('gameView').classList.remove('active');
+            document.getElementById('menuView').classList.add('active');
         }
     </script>
 </body>
