@@ -122,6 +122,10 @@
       border-radius: 12px;
       padding: 20px 10px;
       margin: 20px 0;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .stats {
@@ -183,6 +187,25 @@
       color: #cbd5e1;
       margin-top: 15px;
     }
+
+    .player-select-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: #38bdf8;
+      font-weight: bold;
+    }
+
+    #playerCount {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      padding: 8px;
+      border-radius: 6px;
+      background: #1f2937;
+      color: #fff;
+      border: 1px solid #38bdf8;
+    }
   </style>
 </head>
 
@@ -197,10 +220,22 @@
 
   <div id="menuView" class="view active">
     <div class="panel">
+      <h2>参加人数</h2>
+      <label class="player-select-row" for="playerCount">
+        <span>プレイヤー数</span>
+        <select id="playerCount" onchange="changePlayerCount()">
+          <option value="2">2人</option>
+          <option value="3">3人</option>
+          <option value="4">4人</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="panel">
       <h2>ゲームモード選択</h2>
 
       <button class="cyber-btn mode-btn selected" onclick="setMode(1, this)">
-        01. モード1
+        01. 早押し
       </button>
 
       <button class="cyber-btn mode-btn" onclick="setMode(2, this)">
@@ -263,6 +298,7 @@
     let txChar = null;
     let activeMode = 1;
     let audioContext = null;
+    let selectedPlayers = 2;
 
     async function toggleConnection() {
       if (!device || !device.gatt.connected) {
@@ -287,6 +323,7 @@
           );
 
           updateUI(true);
+          await sendData(`PLAYERS:${selectedPlayers}`);
         } catch (err) {
           console.error("Bluetooth接続エラー:", err);
           updateUI(false);
@@ -320,6 +357,14 @@
         document.getElementById("gameView").classList.remove("active");
         document.getElementById("menuView").classList.add("active");
       }
+    }
+
+    async function changePlayerCount() {
+      selectedPlayers = Number(
+        document.getElementById("playerCount").value
+      );
+
+      await sendData(`PLAYERS:${selectedPlayers}`);
     }
 
     function setMode(modeNumber, element) {
@@ -361,12 +406,10 @@
       }
     }
 
-    // 残り5秒から1秒までのカウント音
     function playPhoneCountdownSound() {
       playPhoneBuzzer(180, 0.55, 1.0);
     }
 
-    // タイムアップ時に鳴らす長い「ブー」
     function playPhoneTimeUpSound() {
       playPhoneBuzzer(120, 1.6, 1.0);
     }
@@ -417,6 +460,43 @@
       const timeValue = document.getElementById("timeValue");
       const sub = document.getElementById("subOutput");
 
+      if (message.startsWith("MODE1:")) {
+        alertBox.style.display = "none";
+
+        if (message === "MODE1:WAIT") {
+          sub.innerText = "合図を待ってください。ボタンを押すとフライングです";
+        } else if (message === "MODE1:GO") {
+          sub.innerText = "合図！一番早くボタンを押してください";
+        } else if (message.startsWith("MODE1:FALSE:")) {
+          const player = message.substring("MODE1:FALSE:".length);
+          alertBox.style.display = "block";
+          alertBox.innerText = `${player} はフライング！ペナルティ`;
+          sub.innerText = "残りのプレイヤーは合図を待ってください";
+        } else if (message.startsWith("MODE1:WIN:")) {
+          const player = message.substring("MODE1:WIN:".length);
+          alertBox.style.display = "block";
+          alertBox.innerText = `${player} の勝ち！`;
+          sub.innerText = "勝者以外にペナルティ";
+        } else if (message === "MODE1:NONE") {
+          alertBox.style.display = "block";
+          alertBox.innerText = "時間切れ：勝者なし";
+          sub.innerText = "今回のゲームは終了しました";
+        }
+
+        return;
+      }
+
+      if (message === "STATUS:WAIT_TOUCH") {
+        sub.innerText = "全員、タッチセンサーに触れてください";
+        return;
+      }
+
+      if (message === "STATUS:READY") {
+        alertBox.style.display = "block";
+        alertBox.innerText = "全員セット完了！";
+        return;
+      }
+
       if (message.startsWith("TIMELEFT:")) {
         const seconds = Number(message.substring("TIMELEFT:".length));
 
@@ -439,19 +519,14 @@
       }
 
       if (message.startsWith("SOLO_SCORE:")) {
-        const score = message.substring("SOLO_SCORE:".length);
-
-        scoreValue.innerText = score;
+        scoreValue.innerText = message.substring("SOLO_SCORE:".length);
         sub.innerText = "光ったボタンを押してください";
         alertBox.style.display = "none";
-
         return;
       }
 
       if (message.startsWith("COUNTDOWN:")) {
         const value = message.substring("COUNTDOWN:".length);
-
-        alertBox.style.display = "none";
 
         if (value === "START") {
           sub.innerText = "スタート！ボタンを押してください";
@@ -466,17 +541,10 @@
         alertBox.style.display = "block";
         alertBox.innerText = message.substring("ALERT:".length);
 
-        // 「タイムアップ」の通知を受け取った時に長いブザー音
         if (message.includes("タイムアップ")) {
           playPhoneTimeUpSound();
         }
 
-        return;
-      }
-
-      if (message === "STATUS:READY") {
-        alertBox.style.display = "block";
-        alertBox.innerText = "全員セット完了！";
         return;
       }
 
@@ -491,33 +559,34 @@
       document.getElementById("menuView").classList.remove("active");
       document.getElementById("gameView").classList.add("active");
 
-      document.getElementById("alertBanner").style.display = "none";
-      document.getElementById("modeTitle").innerText =
-        `ゲームモード 0${activeMode}`;
-
+      const alertBox = document.getElementById("alertBanner");
       const scoreValue = document.getElementById("scoreValue");
       const timeValue = document.getElementById("timeValue");
       const sub = document.getElementById("subOutput");
+
+      alertBox.style.display = "none";
+      document.getElementById("modeTitle").innerText =
+        `ゲームモード 0${activeMode}`;
+
+      await sendData(`PLAYERS:${selectedPlayers}`);
 
       if (activeMode === 5) {
         scoreValue.innerText = "0";
         timeValue.innerText = "60";
         timeValue.classList.remove("urgent");
         sub.innerText = "カウントダウンを待っています";
-
-        await sendData("MODE:5");
       } else {
         scoreValue.innerText = "0";
         timeValue.innerText = "--";
         timeValue.classList.remove("urgent");
         sub.innerText = "全員、タッチセンサーに触れてください";
-
-        await sendData(`MODE:${activeMode}`);
       }
+
+      await sendData(`MODE:${activeMode}`);
     }
 
     async function returnMenu() {
-      await sendData("MODE:1");
+      await sendData("MODE:0");
 
       document.getElementById("gameView").classList.remove("active");
       document.getElementById("menuView").classList.add("active");
