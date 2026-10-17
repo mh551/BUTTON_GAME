@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ CYBER BUTTON BATTLE ⚡</title>
+    <title>⚡ サイバー・ボタンバトル ⚡</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
 
@@ -18,7 +18,7 @@
         }
 
         h1 {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             margin: 5px 0;
             color: #ff00ff;
             text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
@@ -102,7 +102,7 @@
             width: 100%;
             padding: 12px;
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 700;
             border: 2px solid #374151;
             border-radius: 8px;
@@ -139,10 +139,9 @@
             background: #1d4ed8;
             border: 2px solid #60a5fa;
             color: white;
-            font-size: 1.1rem;
+            font-size: 1rem;
             padding: 14px;
             margin-bottom: 15px;
-            text-shadow: 0 0 5px rgba(255,255,255,0.5);
             box-shadow: 0 0 15px rgba(29, 78, 216, 0.6);
         }
 
@@ -150,10 +149,10 @@
             background: linear-gradient(135deg, #db2777, #9333ea);
             border: 2px solid #f472b6;
             color: white;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             padding: 16px;
             box-shadow: 0 0 20px rgba(219, 39, 119, 0.8);
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
 
         #gameView {
@@ -239,33 +238,33 @@
 </head>
 <body>
 
-    <h1>⚡ CYBER BATTLE LINK ⚡</h1>
-    <div id="status" class="disconnected">STATUS: DISCONNECTED</div>
+    <h1>⚡ サイバー・ボタンバトル ⚡</h1>
+    <div id="status" class="disconnected">ステータス: 未接続</div>
 
-    <button class="cyber-btn" id="connectBtn" onclick="toggleConnection()">🔗 CONNECT BLUETOOTH</button>
+    <button class="cyber-btn" id="connectBtn" onclick="toggleConnection()">🔗 Bluetooth接続</button>
 
-    <!-- ================= 1. SETUP MENU ================= -->
+    <!-- ================= 1. 設定メニュー画面 ================= -->
     <div id="menuView" class="view active">
         
         <div class="panel" id="namePanel">
-            <h2>👤 PILOT NAMES</h2>
-            <div class="name-group"><label>P1</label><input type="text" id="p1Name" value="PILOT-1"></div>
-            <div class="name-group"><label>P2</label><input type="text" id="p2Name" value="PILOT-2"></div>
-            <div class="name-group" id="p3Box"><label>P3</label><input type="text" id="p3Name" value="PILOT-3"></div>
-            <div class="name-group" id="p4Box"><label>P4</label><input type="text" id="p4Name" value="PILOT-4"></div>
+            <h2>👤 プレイヤー名設定</h2>
+            <div class="name-group"><label>P1</label><input type="text" id="p1Name" value="プレイヤー1"></div>
+            <div class="name-group"><label>P2</label><input type="text" id="p2Name" value="プレイヤー2"></div>
+            <div class="name-group" id="p3Box"><label>P3</label><input type="text" id="p3Name" value="プレイヤー3"></div>
+            <div class="name-group" id="p4Box"><label>P4</label><input type="text" id="p4Name" value="プレイヤー4"></div>
         </div>
 
         <div class="panel" id="playerCountPanel">
-            <h2>👥 ACTIVE PILOTS</h2>
+            <h2>👥 参加人数</h2>
             <div class="btn-grid">
-                <button class="cyber-btn selected" onclick="setPlayers(2, this)">2 PLAYERS</button>
-                <button class="cyber-btn" onclick="setPlayers(3, this)">3 PLAYERS</button>
-                <button class="cyber-btn" onclick="setPlayers(4, this)">4 PLAYERS</button>
+                <button class="cyber-btn selected" onclick="setPlayers(2, this)">2人対戦</button>
+                <button class="cyber-btn" onclick="setPlayers(3, this)">3人対戦</button>
+                <button class="cyber-btn" onclick="setPlayers(4, this)">4人対戦</button>
             </div>
         </div>
 
         <div class="panel">
-            <h2>🎮 BATTLE MODE</h2>
+            <h2>🎮 ゲームモード選択</h2>
             <button class="cyber-btn mode-btn selected" onclick="setMode(1, this)">01. ⚡ 遅咲きタイムアタック</button>
             <button class="cyber-btn mode-btn" onclick="setMode(2, this)">02. ⚔️ 連打サバイバル</button>
             <button class="cyber-btn mode-btn" onclick="setMode(3, this)">03. 🎯 加速ルーレット</button>
@@ -273,21 +272,21 @@
             <button class="cyber-btn mode-btn" onclick="setMode(5, this)">05. 🚀 1人プレイ両手連打アタック</button>
         </div>
 
-        <button class="cyber-btn" id="launchBtn" onclick="launchGame()">🚀 LAUNCH BATTLE</button>
+        <button class="cyber-btn" id="launchBtn" onclick="launchGame()">🚀 ゲームスタート！！</button>
     </div>
 
-    <!-- ================= 2. LIVE BATTLE MONITOR ================= -->
+    <!-- ================= 2. ライブバトルモニター画面 ================= -->
     <div id="gameView" class="view">
-        <h2 id="modeTitle" style="color:#00ffff; text-align:center; border:none; font-size:1.1rem;">BATTLE MONITOR</h2>
+        <h2 id="modeTitle" style="color:#00ffff; text-align:center; border:none; font-size:1.1rem;">バトルモニター</h2>
         
-        <div id="alertBanner">WARNING: SYSTEM ALERT</div>
+        <div id="alertBanner">警告: システムアラート</div>
 
         <div id="battleDisplay">
-            <p id="mainOutput">READY</p>
-            <p id="subOutput">STANDBY FOR COMMAND</p>
+            <p id="mainOutput">待機中</p>
+            <p id="subOutput">シグナルを待っています</p>
         </div>
 
-        <button class="cyber-btn back-cyber-btn" onclick="returnMenu()">🏠 ABORT & RETURN</button>
+        <button class="cyber-btn back-cyber-btn" onclick="returnMenu()">🏠 中断してメニューに戻る</button>
     </div>
 
     <script>
@@ -298,7 +297,7 @@
         let device = null, rxChar = null, txChar = null;
         let activeMode = 1;
         let activePlayers = 2;
-        let pilots = ["PILOT-1", "PILOT-2", "PILOT-3", "PILOT-4"];
+        let pilots = ["プレイヤー1", "プレイヤー2", "プレイヤー3", "プレイヤー4"];
 
         let audioCtx = null;
 
@@ -321,8 +320,8 @@
                 } else if (type === 1) {
                     osc.frequency.setValueAtTime(880, audioCtx.currentTime);
                     osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.25);
-                } else if (type === 2) { // スコア加算音
-                    osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+                } else if (type === 2) {
+                    osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
                     osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
                 }
 
@@ -339,7 +338,7 @@
         async function toggleConnection() {
             if (!device || !device.gatt.connected) {
                 try {
-                    document.getElementById('status').innerText = "CONNECTING...";
+                    document.getElementById('status').innerText = "接続中...";
                     device = await navigator.bluetooth.requestDevice({
                         filters: [{ name: 'Button GAME' }],
                         optionalServices: [SERVICE_UUID]
@@ -374,13 +373,13 @@
             const stat = document.getElementById('status');
             const btn = document.getElementById('connectBtn');
             if (isConnected) {
-                stat.innerText = "STATUS: ONLINE (LINKED)";
+                stat.innerText = "ステータス: 接続完了（リンク中）";
                 stat.className = "connected";
-                btn.innerText = "🔌 DISCONNECT";
+                btn.innerText = "🔌 切断する";
             } else {
-                stat.innerText = "STATUS: DISCONNECTED";
+                stat.innerText = "ステータス: 未接続";
                 stat.className = "disconnected";
-                btn.innerText = "🔗 CONNECT BLUETOOTH";
+                btn.innerText = "🔗 Bluetooth接続";
                 returnMenu();
             }
         }
@@ -420,7 +419,7 @@
         // 受信データ処理
         function onReceive(event) {
             let msg = new TextDecoder().decode(event.target.value).trim();
-            console.log("RX:", msg);
+            console.log("受信データ:", msg);
 
             const alertBox = document.getElementById('alertBanner');
             const display = document.getElementById('battleDisplay');
@@ -436,43 +435,42 @@
             if (msg.startsWith("NOTOUCH:")) {
                 let idx = parseInt(msg.split(":")[1].replace("P","")) - 1;
                 alertBox.style.display = "block";
-                alertBox.innerText = `⚠️ ${pilots[idx] || 'PILOT'} : TOUCH PLATE ERROR`;
+                alertBox.innerText = `⚠️ ${pilots[idx] || 'プレイヤー'} : 鉄板から手が離れています！`;
             } else if (msg.startsWith("DISCONNECT:")) {
                 let idx = parseInt(msg.split(":")[1].replace("P","")) - 1;
                 alertBox.style.display = "block";
-                alertBox.innerText = `🚨 ${pilots[idx] || 'PILOT'} : ABORTED (HAND RELEASED)`;
+                alertBox.innerText = `🚨 ${pilots[idx] || 'プレイヤー'} : 途中離脱によりゲーム中止！`;
             } else if (msg === "STATUS:READY") {
                 alertBox.style.display = "block";
                 alertBox.style.background = "#047857";
-                alertBox.innerText = `✨ ALL PILOTS LOCKED IN!`;
+                alertBox.innerText = `✨ 全員のセット完了！`;
             } else if (msg.startsWith("SOLO_SCORE:")) {
-                // 💡 モード5のリアルタイムスコア受信処理を追加！
+                // 💡 モード5のリアルタイムスコア受信（完全対応版）
                 let score = msg.split(":")[1];
                 alertBox.style.display = "none";
                 main.style.color = "#4ade80";
                 main.innerText = `${score} 回`;
-                sub.innerText = "⚡ DUAL MASH ATTACKING!";
+                sub.innerText = "⚡ 両手連打アタック中！";
                 playCyberSound(2);
             } else if (msg.startsWith("ALERT:")) {
-                // タイムアップ時の最終スコア表示など
                 alertBox.style.display = "block";
                 alertBox.style.background = "#1e3a8a";
                 alertBox.innerText = msg.split(":")[1];
             } else {
                 alertBox.style.display = "none";
                 if (activeMode === 1) {
-                    if (msg === "STATE:WAITING") { main.style.color="#f97316"; main.innerText="HOLD!"; sub.innerText="WAIT FOR SIGNAL"; }
-                    else if (msg === "STATE:SIGNAL") { main.style.color="#4ade80"; main.innerText="PUSH NOW!"; sub.innerText="ATTACK!"; playCyberSound(1); }
+                    if (msg === "STATE:WAITING") { main.style.color="#f97316"; main.innerText="静かに！"; sub.innerText="合図が出るまで我慢！"; }
+                    else if (msg === "STATE:SIGNAL") { main.style.color="#4ade80"; main.innerText="今だ！押せ！"; sub.innerText="アタック！"; playCyberSound(1); }
                 } else if (activeMode === 2 && msg.startsWith("TARGET:")) {
-                    main.style.color="#facc15"; main.innerText=`GOAL: ${msg.split(":")[1]}`; sub.innerText="MASH TARGET COUNT!";
+                    main.style.color="#facc15"; main.innerText=`目標: ${msg.split(":")[1]}回`; sub.innerText="目標回数まで連打！";
                 } else if (activeMode === 3 && msg.startsWith("ROULETTE:")) {
                     let idx = parseInt(msg.split(":")[1].replace("P","")) - 1;
-                    main.style.color="#38bdf8"; main.innerText=`🎯 ${pilots[idx]}`; sub.innerText="TARGET LOCKED! PRESS FAST!";
+                    main.style.color="#38bdf8"; main.innerText=`🎯 ${pilots[idx]}`; sub.innerText="ターゲット決定！急いで押せ！";
                 } else if (activeMode === 4 && msg.startsWith("SCORE:")) {
                     let scores = msg.split(":")[1].split(",");
                     let html = `<div class="score-box-grid">`;
                     for(let i=0; i<activePlayers; i++) {
-                        html += `<div class="score-card">${pilots[i]}<span>${scores[i]||0}</span></div>`;
+                        html += `<div class="score-card">${pilots[i]}<span>${scores[i]||0}</span>回</div>`;
                     }
                     html += `</div>`;
                     display.innerHTML = html;
@@ -483,34 +481,34 @@
         // スタートボタン処理
         async function launchGame() {
             initAudio();
-            pilots[0] = document.getElementById('p1Name').value || "PILOT-1";
-            pilots[1] = document.getElementById('p2Name').value || "PILOT-2";
-            pilots[2] = document.getElementById('p3Name').value || "PILOT-3";
-            pilots[3] = document.getElementById('p4Name').value || "PILOT-4";
+            pilots[0] = document.getElementById('p1Name').value || "プレイヤー1";
+            pilots[1] = document.getElementById('p2Name').value || "プレイヤー2";
+            pilots[2] = document.getElementById('p3Name').value || "プレイヤー3";
+            pilots[3] = document.getElementById('p4Name').value || "プレイヤー4";
 
             document.getElementById('menuView').classList.remove('active');
             document.getElementById('gameView').classList.add('active');
-            document.getElementById('modeTitle',).innerText = `⚔️ BATTLE MODE 0${activeMode}`;
+            document.getElementById('modeTitle').innerText = `⚔️ ゲームモード 0${activeMode}`;
 
             const display = document.getElementById('battleDisplay');
 
             if (activeMode === 5) {
                 for(let c = 3; c > 0; c--) {
-                    display.innerHTML = `<p id="mainOutput" style="font-size:3.5rem; color:#f97316;">⏳ ${c}</p><p id="subOutput">SYSTEM INITIALIZING...</p>`;
+                    display.innerHTML = `<p id="mainOutput" style="font-size:3.5rem; color:#f97316;">⏳ ${c}</p><p id="subOutput">システム初期化中...</p>`;
                     playCyberSound(0);
                     await new Promise(r => setTimeout(r, 1000));
                 }
-                display.innerHTML = `<p id="mainOutput" style="font-size:3.5rem; color:#4ade80;">0 回</p><p id="subOutput">⚡ DUAL MASH ATTACK START!</p>`;
+                display.innerHTML = `<p id="mainOutput" style="font-size:3.5rem; color:#4ade80;">0 回</p><p id="subOutput">⚡ 両手連打アタック開始！</p>`;
                 playCyberSound(1);
                 await sendData(`MODE:5`);
             } else {
                 if (activeMode === 4) {
                     let html = `<div class="score-box-grid">`;
-                    for(let i=0; i<activePlayers; i++) html += `<div class="score-card">${pilots[i]}<span>0</span></div>`;
+                    for(let i=0; i<activePlayers; i++) html += `<div class="score-card">${pilots[i]}<span>0</span>回</div>`;
                     html += `</div>`;
                     display.innerHTML = html;
                 } else {
-                    display.innerHTML = `<p id="mainOutput" style="font-size:2.2rem; color:#facc15;">WAITING...</p><p id="subOutput">TOUCH ALL PLATES</p>`;
+                    display.innerHTML = `<p id="mainOutput" style="font-size:2.2rem; color:#facc15;">待機中...</p><p id="subOutput">全員鉄板に手を置いてください</p>`;
                 }
                 await sendData(`PLAYERS:${activePlayers}`);
                 await new Promise(r => setTimeout(r, 100));
