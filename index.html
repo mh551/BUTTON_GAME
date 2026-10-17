@@ -10,7 +10,7 @@
 
     body {
       font-family: 'Orbitron', sans-serif;
-      background-color: #0b0f19;
+      background: #0b0f19;
       color: #00ffff;
       margin: 0;
       padding: 15px;
@@ -83,12 +83,6 @@
       margin-bottom: 8px;
     }
 
-    .cyber-btn.selected {
-      background: #701a75;
-      border-color: #e879f9;
-      color: #fff;
-    }
-
     .mode-btn {
       text-align: left;
       padding-left: 15px;
@@ -126,26 +120,52 @@
       background: #020617;
       border: 2px solid #3b82f6;
       border-radius: 12px;
-      padding: 30px 10px;
+      padding: 20px 10px;
       margin: 20px 0;
-      min-height: 150px;
+    }
+
+    .stats {
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      gap: 12px;
       justify-content: center;
     }
 
-    #mainOutput {
-      font-size: 3rem;
+    .stat-card {
+      flex: 1;
+      min-width: 0;
+      background: #111827;
+      border: 1px solid #1e3a8a;
+      border-radius: 10px;
+      padding: 14px 6px;
+    }
+
+    .stat-label {
+      display: block;
+      color: #38bdf8;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      display: block;
+      font-size: 2.2rem;
       font-weight: 900;
       color: #facc15;
-      margin: 0;
+      overflow-wrap: anywhere;
+    }
+
+    #scoreValue {
+      color: #4ade80;
+    }
+
+    #timeValue.urgent {
+      color: #ff3366;
     }
 
     #subOutput {
-      font-size: 1.1rem;
+      font-size: 1rem;
       color: #38bdf8;
-      margin-top: 15px;
+      margin: 18px 0 0;
     }
 
     #alertBanner {
@@ -162,20 +182,6 @@
       background: #334155;
       color: #cbd5e1;
       margin-top: 15px;
-    }
-
-    @media (max-width: 480px) {
-      body {
-        padding: 12px;
-      }
-
-      #gameView {
-        padding: 15px;
-      }
-
-      #battleDisplay {
-        min-height: 140px;
-      }
     }
   </style>
 </head>
@@ -196,19 +202,15 @@
       <button class="cyber-btn mode-btn selected" onclick="setMode(1, this)">
         01. モード1
       </button>
-
       <button class="cyber-btn mode-btn" onclick="setMode(2, this)">
         02. モード2
       </button>
-
       <button class="cyber-btn mode-btn" onclick="setMode(3, this)">
         03. モード3
       </button>
-
       <button class="cyber-btn mode-btn" onclick="setMode(4, this)">
         04. モード4
       </button>
-
       <button class="cyber-btn mode-btn" onclick="setMode(5, this)">
         05. 1人プレイ・タイムアタック
       </button>
@@ -227,7 +229,18 @@
     <div id="alertBanner">お知らせ</div>
 
     <div id="battleDisplay">
-      <p id="mainOutput">待機中</p>
+      <div class="stats">
+        <div class="stat-card">
+          <span class="stat-label">スコア</span>
+          <span class="stat-value" id="scoreValue">0</span>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">残り時間</span>
+          <span class="stat-value" id="timeValue">--</span>
+        </div>
+      </div>
+
       <p id="subOutput">信号を待っています</p>
     </div>
 
@@ -332,7 +345,6 @@
         window.AudioContext || window.webkitAudioContext;
 
       if (!AudioContextClass) {
-        console.warn("このブラウザはWeb Audioに対応していません");
         return;
       }
 
@@ -341,9 +353,7 @@
       }
 
       if (audioContext.state === "suspended") {
-        audioContext.resume().catch(err => {
-          console.error("音声の開始に失敗しました:", err);
-        });
+        audioContext.resume().catch(console.error);
       }
     }
 
@@ -353,9 +363,7 @@
       }
 
       if (audioContext.state === "suspended") {
-        audioContext.resume().catch(err => {
-          console.error("音声の再開に失敗しました:", err);
-        });
+        audioContext.resume().catch(console.error);
       }
 
       const oscillator = audioContext.createOscillator();
@@ -383,27 +391,22 @@
         dataView.byteOffset,
         dataView.byteLength
       );
-
       const message = new TextDecoder().decode(bytes).trim();
 
       const alertBox = document.getElementById("alertBanner");
-      const main = document.getElementById("mainOutput");
+      const scoreValue = document.getElementById("scoreValue");
+      const timeValue = document.getElementById("timeValue");
       const sub = document.getElementById("subOutput");
 
-      if (!main || !sub) {
-        return;
-      }
-
-      // ゲーム中の残り時間
       if (message.startsWith("TIMELEFT:")) {
         const seconds = Number(message.substring("TIMELEFT:".length));
 
+        timeValue.innerText = String(seconds);
+        timeValue.classList.toggle("urgent", seconds <= 5);
+        sub.innerText = "光ったボタンを押してください";
         alertBox.style.display = "none";
-        main.style.color = seconds <= 5 ? "#ff3366" : "#facc15";
-        main.innerText = String(seconds);
-        sub.innerText = "残り時間";
 
-        // 残り5秒から1秒までiPhoneで音を鳴らす
+        // 残り5秒から1秒までiPhoneで鳴らす
         if (seconds >= 1 && seconds <= 5) {
           playPhoneCountdownSound();
         }
@@ -411,37 +414,31 @@
         return;
       }
 
-      // 開始前のカウントダウン
+      if (message.startsWith("SOLO_SCORE:")) {
+        const score = message.substring("SOLO_SCORE:".length);
+
+        // 時間表示はそのままにして、スコアだけ更新
+        scoreValue.innerText = score;
+        sub.innerText = "光ったボタンを押してください";
+        alertBox.style.display = "none";
+
+        return;
+      }
+
       if (message.startsWith("COUNTDOWN:")) {
         const value = message.substring("COUNTDOWN:".length);
 
         alertBox.style.display = "none";
-        main.style.color = "#facc15";
 
         if (value === "START") {
-          main.innerText = "START!";
-          sub.innerText = "ボタンを押してください";
+          sub.innerText = "スタート！ボタンを押してください";
         } else {
-          main.innerText = value;
-          sub.innerText = "スタートまで...";
+          sub.innerText = `ゲーム開始まで ${value}`;
         }
 
         return;
       }
 
-      // スコア更新
-      if (message.startsWith("SOLO_SCORE:")) {
-        const score = message.substring("SOLO_SCORE:".length);
-
-        alertBox.style.display = "none";
-        main.style.color = "#4ade80";
-        main.innerText = `${score} 点`;
-        sub.innerText = "光ったボタンを押してください";
-
-        return;
-      }
-
-      // ゲーム終了などのお知らせ
       if (message.startsWith("ALERT:")) {
         alertBox.style.display = "block";
         alertBox.innerText = message.substring("ALERT:".length);
@@ -460,7 +457,7 @@
     }
 
     async function launchGame() {
-      // iPhoneで音を鳴らせるよう、スタートボタンを押した時点で準備する
+      // スタート操作のタイミングでiPhoneの音声機能を準備
       preparePhoneAudio();
 
       document.getElementById("menuView").classList.remove("active");
@@ -470,18 +467,22 @@
       document.getElementById("modeTitle").innerText =
         `ゲームモード 0${activeMode}`;
 
-      const display = document.getElementById("battleDisplay");
+      const scoreValue = document.getElementById("scoreValue");
+      const timeValue = document.getElementById("timeValue");
+      const sub = document.getElementById("subOutput");
 
       if (activeMode === 5) {
-        display.innerHTML =
-          '<p id="mainOutput" style="font-size:3.5rem; color:#facc15;">準備中</p>' +
-          '<p id="subOutput">カウントダウンを待っています</p>';
+        scoreValue.innerText = "0";
+        timeValue.innerText = "60";
+        timeValue.classList.remove("urgent");
+        sub.innerText = "カウントダウンを待っています";
 
         await sendData("MODE:5");
       } else {
-        display.innerHTML =
-          '<p id="mainOutput" style="font-size:2.2rem; color:#facc15;">待機中...</p>' +
-          '<p id="subOutput">全員、タッチセンサーに触れてください</p>';
+        scoreValue.innerText = "0";
+        timeValue.innerText = "--";
+        timeValue.classList.remove("urgent");
+        sub.innerText = "全員、タッチセンサーに触れてください";
 
         await sendData(`MODE:${activeMode}`);
       }
