@@ -274,7 +274,7 @@
       </button>
 
       <button class="cyber-btn mode-btn" onclick="setMode(3, this)">
-        03. モード3
+        03. 10秒ガチンコ連打
       </button>
 
       <button class="cyber-btn mode-btn" onclick="setMode(4, this)">
@@ -317,7 +317,7 @@
         <thead>
           <tr>
             <th>プレイヤー</th>
-            <th>連打数 / 目標</th>
+            <th id="mode2CountHeading">連打数 / 目標</th>
           </tr>
         </thead>
         <tbody id="mode2Scores"></tbody>
@@ -546,6 +546,20 @@
       }
     }
 
+    function renderMode3Scores(counts) {
+      const tbody = document.getElementById("mode2Scores");
+      tbody.innerHTML = "";
+      for (let i = 0; i < selectedPlayers; i++) {
+        const row = document.createElement("tr");
+        const playerCell = document.createElement("td");
+        const countCell = document.createElement("td");
+        playerCell.textContent = `プレイヤー${i + 1}`;
+        countCell.textContent = String(counts[i] || 0);
+        row.appendChild(playerCell);
+        row.appendChild(countCell);
+        tbody.appendChild(row);
+      }
+    }
     function onReceive(event) {
       const dataView = event.target.value;
       const bytes = new Uint8Array(
@@ -561,6 +575,46 @@
       const timeValue = document.getElementById("timeValue");
       const sub = document.getElementById("subOutput");
 
+      if (message === "MODE3:WAIT") {
+        document.getElementById("mode2Board").style.display = "table";
+        document.getElementById("mode2CountHeading").innerText = "連打数";
+        document.getElementById("leftStatLabel").innerText = "連打勝負";
+        document.getElementById("rightStatLabel").innerText = "合図";
+        scoreValue.innerText = "準備"; timeValue.innerText = "3〜5秒";
+        sub.innerText = "合図が鳴るまで待ってください";
+        alertBox.style.display = "none";
+        renderMode3Scores(new Array(selectedPlayers).fill(0));
+        return;
+      }
+      if (message.startsWith("MODE3:START:")) {
+        document.getElementById("mode2Board").style.display = "table";
+        document.getElementById("mode2CountHeading").innerText = "連打数";
+        document.getElementById("leftStatLabel").innerText = "連打勝負";
+        document.getElementById("rightStatLabel").innerText = "残り時間";
+        scoreValue.innerText = "スタート"; timeValue.innerText = "10秒";
+        sub.innerText = "合図！10秒間連打してください";
+        renderMode3Scores(new Array(selectedPlayers).fill(0));
+        return;
+      }
+      if (message.startsWith("MODE3:TIME:")) {
+        const seconds = Number(message.substring("MODE3:TIME:".length));
+        timeValue.innerText = `${seconds}秒`;
+        timeValue.classList.toggle("urgent", seconds <= 3);
+        if (seconds === 0) sub.innerText = "終了！結果を集計しています";
+        return;
+      }
+      if (message.startsWith("MODE3:COUNTS:")) {
+        const counts = message.substring("MODE3:COUNTS:".length).split(",").map(Number);
+        renderMode3Scores(counts);
+        return;
+      }
+      if (message.startsWith("MODE3:RESULT:")) {
+        const winners = message.substring("MODE3:RESULT:".length).split(",").filter(Boolean).map(p => `プレイヤー${p.substring(1)}`);
+        alertBox.style.display = "block";
+        alertBox.innerText = winners.length > 1 ? `最多連打：${winners.join("・")}（同率1位）` : `最多連打：${winners[0]}！`;
+        sub.innerText = "勝者以外にペナルティ";
+        return;
+      }
       if (message.startsWith("MODE2:RELEASE:")) {
         const playerLabel =
           message.substring("MODE2:RELEASE:".length);
@@ -763,13 +817,24 @@
       const timeValue = document.getElementById("timeValue");
       const sub = document.getElementById("subOutput");
       const board = document.getElementById("mode2Board");
+      document.getElementById("mode2CountHeading").innerText = "連打数 / 目標";
 
       document.getElementById("modeTitle").innerText =
         `ゲームモード 0${activeMode}`;
 
       await sendData(`PLAYERS:${selectedPlayers}`);
 
-      if (activeMode === 2) {
+      if (activeMode === 3) {
+        board.style.display = "table";
+        document.getElementById("mode2CountHeading").innerText = "連打数";
+        document.getElementById("leftStatLabel").innerText = "連打勝負";
+        document.getElementById("rightStatLabel").innerText = "合図";
+        scoreValue.innerText = "準備";
+        timeValue.innerText = "3〜5秒";
+        timeValue.classList.remove("urgent");
+        sub.innerText = "合図が鳴るまで待ってください";
+        renderMode3Scores(new Array(selectedPlayers).fill(0));
+      } else if (activeMode === 2) {
         board.style.display = "table";
         document.getElementById("leftStatLabel").innerText = "目標回数";
         document.getElementById("rightStatLabel").innerText = "経過時間";
