@@ -164,8 +164,18 @@
       margin-top: 15px;
     }
 
-    .hidden {
-      display: none !important;
+    @media (max-width: 480px) {
+      body {
+        padding: 12px;
+      }
+
+      #gameView {
+        padding: 15px;
+      }
+
+      #battleDisplay {
+        min-height: 140px;
+      }
     }
   </style>
 </head>
@@ -235,6 +245,7 @@
     let rxChar = null;
     let txChar = null;
     let activeMode = 1;
+    let audioContext = null;
 
     async function toggleConnection() {
       if (!device || !device.gatt.connected) {
@@ -277,30 +288,30 @@
     }
 
     function updateUI(isConnected) {
-      const stat = document.getElementById("status");
-      const btn = document.getElementById("connectBtn");
+      const status = document.getElementById("status");
+      const button = document.getElementById("connectBtn");
 
       if (isConnected) {
-        stat.innerText = "ステータス: 接続中";
-        stat.className = "connected";
-        btn.innerText = "切断する";
+        status.innerText = "ステータス: 接続中";
+        status.className = "connected";
+        button.innerText = "切断する";
       } else {
-        stat.innerText = "ステータス: 未接続";
-        stat.className = "disconnected";
-        btn.innerText = "Bluetooth接続";
+        status.innerText = "ステータス: 未接続";
+        status.className = "disconnected";
+        button.innerText = "Bluetooth接続";
 
         document.getElementById("gameView").classList.remove("active");
         document.getElementById("menuView").classList.add("active");
       }
     }
 
-    function setMode(num, element) {
+    function setMode(modeNumber, element) {
       document.querySelectorAll(".mode-btn").forEach(button => {
         button.classList.remove("selected");
       });
 
       element.classList.add("selected");
-      activeMode = num;
+      activeMode = modeNumber;
     }
 
     async function sendData(text) {
@@ -312,8 +323,57 @@
         const data = new TextEncoder().encode(text + "\n");
         await rxChar.writeValue(data);
       } catch (err) {
-        console.error("送信エラー:", err);
+        console.error("Bluetooth送信エラー:", err);
       }
+    }
+
+    function preparePhoneAudio() {
+      const AudioContextClass =
+        window.AudioContext || window.webkitAudioContext;
+
+      if (!AudioContextClass) {
+        console.warn("このブラウザはWeb Audioに対応していません");
+        return;
+      }
+
+      if (!audioContext) {
+        audioContext = new AudioContextClass();
+      }
+
+      if (audioContext.state === "suspended") {
+        audioContext.resume().catch(err => {
+          console.error("音声の開始に失敗しました:", err);
+        });
+      }
+    }
+
+    function playPhoneCountdownSound() {
+      if (!audioContext) {
+        return;
+      }
+
+      if (audioContext.state === "suspended") {
+        audioContext.resume().catch(err => {
+          console.error("音声の再開に失敗しました:", err);
+        });
+      }
+
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      const now = audioContext.currentTime;
+
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(880, now);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.exponentialRampToValueAtTime(0.25, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+
+      oscillator.start(now);
+      oscillator.stop(now + 0.2);
     }
 
     function onReceive(event) {
@@ -324,7 +384,8 @@
         dataView.byteLength
       );
 
-      const msg = new TextDecoder().decode(bytes).trim();
+      const message = new TextDecoder().decode(bytes).trim();
+
       const alertBox = document.getElementById("alertBanner");
       const main = document.getElementById("mainOutput");
       const sub = document.getElementById("subOutput");
@@ -333,8 +394,26 @@
         return;
       }
 
-      if (msg.startsWith("COUNTDOWN:")) {
-        const value = msg.substring("COUNTDOWN:".length);
+      // ゲーム中の残り時間
+      if (message.startsWith("TIMELEFT:")) {
+        const seconds = Number(message.substring("TIMELEFT:".length));
+
+        alertBox.style.display = "none";
+        main.style.color = seconds <= 5 ? "#ff3366" : "#facc15";
+        main.innerText = String(seconds);
+        sub.innerText = "残り時間";
+
+        // 残り5秒から1秒までiPhoneで音を鳴らす
+        if (seconds >= 1 && seconds <= 5) {
+          playPhoneCountdownSound();
+        }
+
+        return;
+      }
+
+      // 開始前のカウントダウン
+      if (message.startsWith("COUNTDOWN:")) {
+        const value = message.substring("COUNTDOWN:".length);
 
         alertBox.style.display = "none";
         main.style.color = "#facc15";
@@ -346,25 +425,44 @@
           main.innerText = value;
           sub.innerText = "スタートまで...";
         }
-      } else if (msg.startsWith("SOLO_SCORE:")) {
-        const score = msg.substring("SOLO_SCORE:".length);
+
+        return;
+      }
+
+      // スコア更新
+      if (message.startsWith("SOLO_SCORE:")) {
+        const score = message.substring("SOLO_SCORE:".length);
 
         alertBox.style.display = "none";
         main.style.color = "#4ade80";
         main.innerText = `${score} 点`;
         sub.innerText = "光ったボタンを押してください";
-      } else if (msg.startsWith("ALERT:")) {
+
+        return;
+      }
+
+      // ゲーム終了などのお知らせ
+      if (message.startsWith("ALERT:")) {
         alertBox.style.display = "block";
-        alertBox.innerText = msg.substring("ALERT:".length);
-      } else if (msg === "STATUS:READY") {
+        alertBox.innerText = message.substring("ALERT:".length);
+        return;
+      }
+
+      if (message === "STATUS:READY") {
         alertBox.style.display = "block";
         alertBox.innerText = "全員セット完了！";
-      } else if (msg === "STATUS:FINISHED") {
+        return;
+      }
+
+      if (message === "STATUS:FINISHED") {
         sub.innerText = "ゲーム終了";
       }
     }
 
     async function launchGame() {
+      // iPhoneで音を鳴らせるよう、スタートボタンを押した時点で準備する
+      preparePhoneAudio();
+
       document.getElementById("menuView").classList.remove("active");
       document.getElementById("gameView").classList.add("active");
 
