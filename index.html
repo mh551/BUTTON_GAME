@@ -361,7 +361,7 @@
       }
     }
 
-    // 残り5秒から鳴らす低めの「ブー」音
+    // 残り5秒から鳴らす大きめの低い「ブー」音
     function playPhoneCountdownSound() {
       if (!audioContext) {
         return;
@@ -376,18 +376,18 @@
       const now = audioContext.currentTime;
 
       oscillator.type = "square";
-      oscillator.frequency.setValueAtTime(220, now);
+      oscillator.frequency.setValueAtTime(180, now);
 
       gain.gain.setValueAtTime(0.001, now);
-      gain.gain.exponentialRampToValueAtTime(0.75, now + 0.02);
-      gain.gain.setValueAtTime(0.75, now + 0.25);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+      gain.gain.exponentialRampToValueAtTime(1.0, now + 0.02);
+      gain.gain.setValueAtTime(1.0, now + 0.35);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
 
       oscillator.connect(gain);
       gain.connect(audioContext.destination);
 
       oscillator.start(now);
-      oscillator.stop(now + 0.42);
+      oscillator.stop(now + 0.57);
     }
 
     function onReceive(event) {
@@ -410,7 +410,10 @@
 
         timeValue.innerText = String(seconds);
         timeValue.classList.toggle("urgent", seconds <= 5);
-        sub.innerText = "光ったボタンを押してください";
+        sub.innerText = seconds === 0
+          ? "タイムアップ"
+          : "光ったボタンを押してください";
+
         alertBox.style.display = "none";
 
         if (seconds >= 1 && seconds <= 5) {
