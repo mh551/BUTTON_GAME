@@ -202,15 +202,19 @@
       <button class="cyber-btn mode-btn selected" onclick="setMode(1, this)">
         01. モード1
       </button>
+
       <button class="cyber-btn mode-btn" onclick="setMode(2, this)">
         02. モード2
       </button>
+
       <button class="cyber-btn mode-btn" onclick="setMode(3, this)">
         03. モード3
       </button>
+
       <button class="cyber-btn mode-btn" onclick="setMode(4, this)">
         04. モード4
       </button>
+
       <button class="cyber-btn mode-btn" onclick="setMode(5, this)">
         05. 1人プレイ・タイムアタック
       </button>
@@ -357,6 +361,7 @@
       }
     }
 
+    // 残り5秒から鳴らす低めの「ブー」音
     function playPhoneCountdownSound() {
       if (!audioContext) {
         return;
@@ -370,18 +375,19 @@
       const gain = audioContext.createGain();
       const now = audioContext.currentTime;
 
-      oscillator.type = "sine";
-      oscillator.frequency.setValueAtTime(880, now);
+      oscillator.type = "square";
+      oscillator.frequency.setValueAtTime(220, now);
 
       gain.gain.setValueAtTime(0.001, now);
-      gain.gain.exponentialRampToValueAtTime(0.25, now + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      gain.gain.exponentialRampToValueAtTime(0.75, now + 0.02);
+      gain.gain.setValueAtTime(0.75, now + 0.25);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
 
       oscillator.connect(gain);
       gain.connect(audioContext.destination);
 
       oscillator.start(now);
-      oscillator.stop(now + 0.2);
+      oscillator.stop(now + 0.42);
     }
 
     function onReceive(event) {
@@ -391,6 +397,7 @@
         dataView.byteOffset,
         dataView.byteLength
       );
+
       const message = new TextDecoder().decode(bytes).trim();
 
       const alertBox = document.getElementById("alertBanner");
@@ -406,7 +413,6 @@
         sub.innerText = "光ったボタンを押してください";
         alertBox.style.display = "none";
 
-        // 残り5秒から1秒までiPhoneで鳴らす
         if (seconds >= 1 && seconds <= 5) {
           playPhoneCountdownSound();
         }
@@ -417,7 +423,6 @@
       if (message.startsWith("SOLO_SCORE:")) {
         const score = message.substring("SOLO_SCORE:".length);
 
-        // 時間表示はそのままにして、スコアだけ更新
         scoreValue.innerText = score;
         sub.innerText = "光ったボタンを押してください";
         alertBox.style.display = "none";
@@ -457,7 +462,7 @@
     }
 
     async function launchGame() {
-      // スタート操作のタイミングでiPhoneの音声機能を準備
+      // スタート操作時にiPhoneの音声を準備
       preparePhoneAudio();
 
       document.getElementById("menuView").classList.remove("active");
