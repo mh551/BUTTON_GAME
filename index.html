@@ -156,7 +156,6 @@
             letter-spacing: 2px;
         }
 
-        /* ライブモニター画面の演出 */
         #gameView {
             background: rgba(15, 23, 42, 0.95);
             border: 2px solid #00ffff;
@@ -185,12 +184,6 @@
             color: #facc15;
             margin: 0;
             text-shadow: 0 0 15px rgba(250, 204, 21, 0.8);
-            animation: pulseText 1s infinite alternate;
-        }
-
-        @keyframes pulseText {
-            from { transform: scale(1); text-shadow: 0 0 10px rgba(250, 204, 21, 0.5); }
-            to { transform: scale(1.05); text-shadow: 0 0 25px rgba(250, 204, 21, 0.9); }
         }
 
         #subOutput {
@@ -210,12 +203,6 @@
             margin-bottom: 15px;
             display: none;
             box-shadow: 0 0 15px rgba(153, 27, 27, 0.8);
-            animation: flashAlert 0.5s infinite alternate;
-        }
-
-        @keyframes flashAlert {
-            from { background: #991b1b; }
-            to { background: #dc2626; }
         }
 
         .score-box-grid {
@@ -320,7 +307,6 @@
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        // 近未来的な電子音ジェネレーター
         function playCyberSound(type) {
             try {
                 initAudio();
@@ -335,6 +321,9 @@
                 } else if (type === 1) {
                     osc.frequency.setValueAtTime(880, audioCtx.currentTime);
                     osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.25);
+                } else if (type === 2) { // スコア加算音
+                    osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+                    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
                 }
 
                 gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
@@ -439,7 +428,7 @@
             let sub = document.getElementById('subOutput');
 
             if (!main) {
-                display.innerHTML = `<p id="mainOutput" style="font-size:3rem; font-weight:900; color:#facc15; margin:0;"></p><p id="subOutput" style="font-size:1.1rem; color:#38bdf8; margin-top:15px;"></p>`;
+                display.innerHTML = `<p id="mainOutput" style="font-size:3rem; font-weight:900; color:#4ade80; margin:0;"></p><p id="subOutput" style="font-size:1.1rem; color:#38bdf8; margin-top:15px;"></p>`;
                 main = document.getElementById('mainOutput');
                 sub = document.getElementById('subOutput');
             }
@@ -456,6 +445,19 @@
                 alertBox.style.display = "block";
                 alertBox.style.background = "#047857";
                 alertBox.innerText = `✨ ALL PILOTS LOCKED IN!`;
+            } else if (msg.startsWith("SOLO_SCORE:")) {
+                // 💡 モード5のリアルタイムスコア受信処理を追加！
+                let score = msg.split(":")[1];
+                alertBox.style.display = "none";
+                main.style.color = "#4ade80";
+                main.innerText = `${score} 回`;
+                sub.innerText = "⚡ DUAL MASH ATTACKING!";
+                playCyberSound(2);
+            } else if (msg.startsWith("ALERT:")) {
+                // タイムアップ時の最終スコア表示など
+                alertBox.style.display = "block";
+                alertBox.style.background = "#1e3a8a";
+                alertBox.innerText = msg.split(":")[1];
             } else {
                 alertBox.style.display = "none";
                 if (activeMode === 1) {
@@ -478,7 +480,7 @@
             }
         }
 
-        // スタートボタン処理（完全独立非同期カウントダウン）
+        // スタートボタン処理
         async function launchGame() {
             initAudio();
             pilots[0] = document.getElementById('p1Name').value || "PILOT-1";
@@ -488,12 +490,11 @@
 
             document.getElementById('menuView').classList.remove('active');
             document.getElementById('gameView').classList.add('active');
-            document.getElementById('modeTitle').innerText = `⚔️ BATTLE MODE 0${activeMode}`;
+            document.getElementById('modeTitle',).innerText = `⚔️ BATTLE MODE 0${activeMode}`;
 
             const display = document.getElementById('battleDisplay');
 
             if (activeMode === 5) {
-                // モード5専用カウントダウン
                 for(let c = 3; c > 0; c--) {
                     display.innerHTML = `<p id="mainOutput" style="font-size:3.5rem; color:#f97316;">⏳ ${c}</p><p id="subOutput">SYSTEM INITIALIZING...</p>`;
                     playCyberSound(0);
