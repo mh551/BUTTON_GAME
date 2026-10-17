@@ -1,498 +1,169 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>サイバー・ボタンバトル</title>
-
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
-
-    body {
-      font-family: 'Orbitron', sans-serif;
-      background-color: #0b0f19;
-      color: #00ffff;
-      margin: 0;
-      padding: 15px;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 1.2rem;
-      margin: 5px 0;
-      color: #ff00ff;
-      text-shadow: 0 0 10px #ff00ff;
-    }
-
-    #status {
-      font-size: 0.85rem;
-      margin-bottom: 12px;
-      padding: 8px;
-      border-radius: 6px;
-      background: #1a233a;
-      border: 1px solid #3b82f6;
-      font-weight: bold;
-    }
-
-    .connected {
-      color: #00ffcc !important;
-      border-color: #00ffcc !important;
-    }
-
-    .disconnected {
-      color: #ff3366 !important;
-      border-color: #ff3366 !important;
-    }
-
-    .view {
-      display: none;
-    }
-
-    .view.active {
-      display: block;
-    }
-
-    .panel {
-      background: rgba(17, 24, 39, 0.85);
-      border: 2px solid #1e3a8a;
-      border-radius: 12px;
-      padding: 15px;
-      margin-bottom: 15px;
-      text-align: left;
-    }
-
-    h2 {
-      font-size: 0.95rem;
-      margin-top: 0;
-      color: #38bdf8;
-      border-bottom: 1px dashed #1e3a8a;
-      padding-bottom: 5px;
-    }
-
-    .cyber-btn {
-      width: 100%;
-      padding: 12px;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 700;
-      border: 2px solid #374151;
-      border-radius: 8px;
-      background: #1f2937;
-      color: #9ca3af;
-      cursor: pointer;
-      margin-bottom: 8px;
-    }
-
-    .cyber-btn.selected {
-      background: #701a75;
-      border-color: #e879f9;
-      color: #fff;
-    }
-
-    .mode-btn {
-      text-align: left;
-      padding-left: 15px;
-      color: #d1d5db;
-    }
-
-    .mode-btn.selected {
-      background: #0c4a6e;
-      border-color: #38bdf8;
-      color: #00ffff;
-    }
-
-    #connectBtn {
-      background: #1d4ed8;
-      color: white;
-      font-size: 1rem;
-      padding: 14px;
-    }
-
-    #launchBtn {
-      background: linear-gradient(135deg, #db2777, #9333ea);
-      color: white;
-      font-size: 1.1rem;
-      padding: 16px;
-    }
-
-    #gameView {
-      background: rgba(15, 23, 42, 0.95);
-      border: 2px solid #00ffff;
-      border-radius: 14px;
-      padding: 20px;
-    }
-
-    #battleDisplay {
-      background: #020617;
-      border: 2px solid #3b82f6;
-      border-radius: 12px;
-      padding: 30px 10px;
-      margin: 20px 0;
-      min-height: 150px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #mainOutput {
-      font-size: 3rem;
-      font-weight: 900;
-      color: #facc15;
-      margin: 0;
-    }
-
-    #subOutput {
-      font-size: 1.1rem;
-      color: #38bdf8;
-      margin-top: 15px;
-    }
-
-    #alertBanner {
-      background: #991b1b;
-      color: #fff;
-      padding: 12px;
-      border-radius: 8px;
-      font-weight: bold;
-      margin-bottom: 15px;
-      display: none;
-    }
-
-    .back-cyber-btn {
-      background: #334155;
-      color: #cbd5e1;
-      margin-top: 15px;
-    }
-
-    @media (max-width: 480px) {
-      body {
-        padding: 12px;
-      }
-
-      #gameView {
-        padding: 15px;
-      }
-
-      #battleDisplay {
-        min-height: 140px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ サイバー・ボタンバトル ⚡</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: #0b0f19;
+            color: #00ffff;
+            margin: 0;
+            padding: 15px;
+            text-align: center;
+        }
+        h1 { font-size: 1.2rem; margin: 5px 0; color: #ff00ff; text-shadow: 0 0 10px #ff00ff; }
+        #status { font-size: 0.85rem; margin-bottom: 12px; padding: 8px; border-radius: 6px; background: #1a233a; border: 1px solid #3b82f6; font-weight: bold; }
+        .connected { color: #00ffcc !important; border-color: #00ffcc !important; }
+        .disconnected { color: #ff3366 !important; border-color: #ff3366 !important; }
+        .view { display: none; }
+        .view.active { display: block; }
+        .panel { background: rgba(17, 24, 39, 0.85); border: 2px solid #1e3a8a; border-radius: 12px; padding: 15px; margin-bottom: 15px; text-align: left; }
+        h2 { font-size: 0.95rem; margin-top: 0; color: #38bdf8; border-bottom: 1px dashed #1e3a8a; padding-bottom: 5px; }
+        .cyber-btn { width: 100%; padding: 12px; font-family: 'Orbitron', sans-serif; font-size: 0.85rem; font-weight: 700; border: 2px solid #374151; border-radius: 8px; background: #1f2937; color: #9ca3af; cursor: pointer; margin-bottom: 8px; }
+        .cyber-btn.selected { background: #701a75; border-color: #e879f9; color: #fff; }
+        .mode-btn { text-align: left; padding-left: 15px; color: #d1d5db; }
+        .mode-btn.selected { background: #0c4a6e; border-color: #38bdf8; color: #00ffff; }
+        #connectBtn { background: #1d4ed8; color: white; font-size: 1rem; padding: 14px; }
+        #launchBtn { background: linear-gradient(135deg, #db2777, #9333ea); color: white; font-size: 1.1rem; padding: 16px; }
+        #gameView { background: rgba(15, 23, 42, 0.95); border: 2px solid #00ffff; border-radius: 14px; padding: 20px; }
+        #battleDisplay { background: #020617; border: 2px solid #3b82f6; border-radius: 12px; padding: 30px 10px; margin: 20px 0; min-height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #mainOutput { font-size: 3rem; font-weight: 900; color: #facc15; margin: 0; }
+        #subOutput { font-size: 1.1rem; color: #38bdf8; margin-top: 15px; }
+        #alertBanner { background: #991b1b; color: #fff; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; display: none; }
+        .back-cyber-btn { background: #334155; color: #cbd5e1; margin-top: 15px; }
+        .hidden { display: none !important; }
+    </style>
 </head>
-
 <body>
-  <h1>サイバー・ボタンバトル</h1>
 
-  <div id="status" class="disconnected">ステータス: 未接続</div>
+    <h1>⚡ サイバー・ボタンバトル ⚡</h1>
+    <div id="status" class="disconnected">ステータス: 未接続</div>
+    <button class="cyber-btn" id="connectBtn" onclick="toggleConnection()">🔗 Bluetooth接続</button>
 
-  <button class="cyber-btn" id="connectBtn" onclick="toggleConnection()">
-    Bluetooth接続
-  </button>
-
-  <div id="menuView" class="view active">
-    <div class="panel">
-      <h2>ゲームモード選択</h2>
-
-      <button class="cyber-btn mode-btn selected" onclick="setMode(1, this)">
-        01. モード1
-      </button>
-
-      <button class="cyber-btn mode-btn" onclick="setMode(2, this)">
-        02. モード2
-      </button>
-
-      <button class="cyber-btn mode-btn" onclick="setMode(3, this)">
-        03. モード3
-      </button>
-
-      <button class="cyber-btn mode-btn" onclick="setMode(4, this)">
-        04. モード4
-      </button>
-
-      <button class="cyber-btn mode-btn" onclick="setMode(5, this)">
-        05. 1人プレイ・タイムアタック
-      </button>
+    <div id="menuView" class="view active">
+        <div class="panel">
+            <h2>🎮 ゲームモード選択</h2>
+            <button class="cyber-btn mode-btn selected" onclick="setMode(1, this)">01. ⚡ 遅咲きタイムアタック</button>
+            <button class="cyber-btn mode-btn" onclick="setMode(2, this)">02. ⚔️ 連打サバイバル</button>
+            <button class="cyber-btn mode-btn" onclick="setMode(3, this)">03. 🎯 加速ルーレット</button>
+            <button class="cyber-btn mode-btn" onclick="setMode(4, this)">04. 🔥 最多連打サバイバル</button>
+            <button class="cyber-btn mode-btn" onclick="setMode(5, this)">05. 🚀 1人プレイ両手連打アタック</button>
+        </div>
+        <button class="cyber-btn" id="launchBtn" onclick="launchGame()">🚀 ゲームスタート！！</button>
     </div>
 
-    <button class="cyber-btn" id="launchBtn" onclick="launchGame()">
-      ゲームスタート
-    </button>
-  </div>
-
-  <div id="gameView" class="view">
-    <h2 id="modeTitle" style="color:#00ffff; text-align:center; border:none; font-size:1.1rem;">
-      バトルモニター
-    </h2>
-
-    <div id="alertBanner">お知らせ</div>
-
-    <div id="battleDisplay">
-      <p id="mainOutput">待機中</p>
-      <p id="subOutput">信号を待っています</p>
+    <div id="gameView" class="view">
+        <h2 id="modeTitle" style="color:#00ffff; text-align:center; border:none; font-size:1.1rem;">バトルモニター</h2>
+        <div id="alertBanner">警告</div>
+        <div id="battleDisplay">
+            <p id="mainOutput">待機中</p>
+            <p id="subOutput">シグナルを待っています</p>
+        </div>
+        <button class="cyber-btn back-cyber-btn" onclick="returnMenu()">🏠 中断してメニューに戻る</button>
     </div>
 
-    <button class="cyber-btn back-cyber-btn" onclick="returnMenu()">
-      中断してメニューに戻る
-    </button>
-  </div>
+    <script>
+        const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+        const RX_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+        const TX_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 
-  <script>
-    const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
-    const RX_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
-    const TX_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+        let device = null, rxChar = null, txChar = null;
+        let activeMode = 1;
 
-    let device = null;
-    let rxChar = null;
-    let txChar = null;
-    let activeMode = 1;
-    let audioContext = null;
-
-    async function toggleConnection() {
-      if (!device || !device.gatt.connected) {
-        try {
-          device = await navigator.bluetooth.requestDevice({
-            filters: [{ name: "Button GAME" }],
-            optionalServices: [SERVICE_UUID]
-          });
-
-          device.addEventListener("gattservicedisconnected", onDisconnect);
-
-          const server = await device.gatt.connect();
-          const service = await server.getPrimaryService(SERVICE_UUID);
-
-          rxChar = await service.getCharacteristic(RX_UUID);
-          txChar = await service.getCharacteristic(TX_UUID);
-
-          await txChar.startNotifications();
-          txChar.addEventListener(
-            "characteristicvaluechanged",
-            onReceive
-          );
-
-          updateUI(true);
-        } catch (err) {
-          console.error("Bluetooth接続エラー:", err);
-          updateUI(false);
-        }
-      } else {
-        device.gatt.disconnect();
-        onDisconnect();
-      }
-    }
-
-    function onDisconnect() {
-      updateUI(false);
-      device = null;
-      rxChar = null;
-      txChar = null;
-    }
-
-    function updateUI(isConnected) {
-      const status = document.getElementById("status");
-      const button = document.getElementById("connectBtn");
-
-      if (isConnected) {
-        status.innerText = "ステータス: 接続中";
-        status.className = "connected";
-        button.innerText = "切断する";
-      } else {
-        status.innerText = "ステータス: 未接続";
-        status.className = "disconnected";
-        button.innerText = "Bluetooth接続";
-
-        document.getElementById("gameView").classList.remove("active");
-        document.getElementById("menuView").classList.add("active");
-      }
-    }
-
-    function setMode(modeNumber, element) {
-      document.querySelectorAll(".mode-btn").forEach(button => {
-        button.classList.remove("selected");
-      });
-
-      element.classList.add("selected");
-      activeMode = modeNumber;
-    }
-
-    async function sendData(text) {
-      if (!rxChar) {
-        return;
-      }
-
-      try {
-        const data = new TextEncoder().encode(text + "\n");
-        await rxChar.writeValue(data);
-      } catch (err) {
-        console.error("Bluetooth送信エラー:", err);
-      }
-    }
-
-    function preparePhoneAudio() {
-      const AudioContextClass =
-        window.AudioContext || window.webkitAudioContext;
-
-      if (!AudioContextClass) {
-        console.warn("このブラウザはWeb Audioに対応していません");
-        return;
-      }
-
-      if (!audioContext) {
-        audioContext = new AudioContextClass();
-      }
-
-      if (audioContext.state === "suspended") {
-        audioContext.resume().catch(err => {
-          console.error("音声の開始に失敗しました:", err);
-        });
-      }
-    }
-
-    function playPhoneCountdownSound() {
-      if (!audioContext) {
-        return;
-      }
-
-      if (audioContext.state === "suspended") {
-        audioContext.resume().catch(err => {
-          console.error("音声の再開に失敗しました:", err);
-        });
-      }
-
-      const oscillator = audioContext.createOscillator();
-      const gain = audioContext.createGain();
-      const now = audioContext.currentTime;
-
-      oscillator.type = "sine";
-      oscillator.frequency.setValueAtTime(880, now);
-
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.exponentialRampToValueAtTime(0.25, now + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-
-      oscillator.connect(gain);
-      gain.connect(audioContext.destination);
-
-      oscillator.start(now);
-      oscillator.stop(now + 0.2);
-    }
-
-    function onReceive(event) {
-      const dataView = event.target.value;
-      const bytes = new Uint8Array(
-        dataView.buffer,
-        dataView.byteOffset,
-        dataView.byteLength
-      );
-
-      const message = new TextDecoder().decode(bytes).trim();
-
-      const alertBox = document.getElementById("alertBanner");
-      const main = document.getElementById("mainOutput");
-      const sub = document.getElementById("subOutput");
-
-      if (!main || !sub) {
-        return;
-      }
-
-      // ゲーム中の残り時間
-      if (message.startsWith("TIMELEFT:")) {
-        const seconds = Number(message.substring("TIMELEFT:".length));
-
-        alertBox.style.display = "none";
-        main.style.color = seconds <= 5 ? "#ff3366" : "#facc15";
-        main.innerText = String(seconds);
-        sub.innerText = "残り時間";
-
-        // 残り5秒から1秒までiPhoneで音を鳴らす
-        if (seconds >= 1 && seconds <= 5) {
-          playPhoneCountdownSound();
+        async function toggleConnection() {
+            if (!device || !device.gatt.connected) {
+                try {
+                    device = await navigator.bluetooth.requestDevice({
+                        filters: [{ name: 'Button GAME' }],
+                        optionalServices: [SERVICE_UUID]
+                    });
+                    device.addEventListener('gattservicedisconnected', onDisconnect);
+                    const server = await device.gatt.connect();
+                    const service = await server.getPrimaryService(SERVICE_UUID);
+                    rxChar = await service.getCharacteristic(RX_UUID);
+                    txChar = await service.getCharacteristic(TX_UUID);
+                    await txChar.startNotifications();
+                    txChar.addEventListener('characteristicvaluechanged', onReceive);
+                    updateUI(true);
+                } catch (err) { updateUI(false); }
+            } else {
+                device.gatt.disconnect();
+                onDisconnect();
+            }
         }
 
-        return;
-      }
+        function onDisconnect() { updateUI(false); device = null; rxChar = null; txChar = null; }
 
-      // 開始前のカウントダウン
-      if (message.startsWith("COUNTDOWN:")) {
-        const value = message.substring("COUNTDOWN:".length);
-
-        alertBox.style.display = "none";
-        main.style.color = "#facc15";
-
-        if (value === "START") {
-          main.innerText = "START!";
-          sub.innerText = "ボタンを押してください";
-        } else {
-          main.innerText = value;
-          sub.innerText = "スタートまで...";
+        function updateUI(isConnected) {
+            const stat = document.getElementById('status');
+            const btn = document.getElementById('connectBtn');
+            if (isConnected) {
+                stat.innerText = "ステータス: 接続完了"; stat.className = "connected"; btn.innerText = "🔌 切断する";
+            } else {
+                stat.innerText = "ステータス: 未接続"; stat.className = "disconnected"; btn.innerText = "🔗 Bluetooth接続";
+                returnMenu();
+            }
         }
 
-        return;
-      }
+        function setMode(num, el) {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            activeMode = num;
+        }
 
-      // スコア更新
-      if (message.startsWith("SOLO_SCORE:")) {
-        const score = message.substring("SOLO_SCORE:".length);
+        async function sendData(str) {
+            if (!rxChar) return;
+            try { await rxChar.writeValue(new TextEncoder().encode(str + "\n")); } catch(e) {}
+        }
 
-        alertBox.style.display = "none";
-        main.style.color = "#4ade80";
-        main.innerText = `${score} 点`;
-        sub.innerText = "光ったボタンを押してください";
+        function onReceive(event) {
+            let msg = new TextDecoder().decode(event.target.value).trim();
+            const alertBox = document.getElementById('alertBanner');
+            let main = document.getElementById('mainOutput');
+            let sub = document.getElementById('subOutput');
 
-        return;
-      }
+            if (!main) return;
 
-      // ゲーム終了などのお知らせ
-      if (message.startsWith("ALERT:")) {
-        alertBox.style.display = "block";
-        alertBox.innerText = message.substring("ALERT:".length);
-        return;
-      }
+            if (msg.startsWith("SOLO_SCORE:")) {
+                let score = msg.split(":")[1];
+                alertBox.style.display = "none";
+                main.style.color = "#4ade80";
+                main.innerText = `${score} 回`;
+                sub.innerText = "⚡ 両手連打アタック中！";
+            } else if (msg.startsWith("ALERT:")) {
+                alertBox.style.display = "block";
+                alertBox.innerText = msg.split(":")[1];
+            } else if (msg === "STATUS:READY") {
+                alertBox.style.display = "block";
+                alertBox.innerText = "✨ 全員セット完了！";
+            }
+        }
 
-      if (message === "STATUS:READY") {
-        alertBox.style.display = "block";
-        alertBox.innerText = "全員セット完了！";
-        return;
-      }
+        async function launchGame() {
+            document.getElementById('menuView').classList.remove('active');
+            document.getElementById('gameView').classList.add('active');
+            document.getElementById('modeTitle').innerText = `⚔️ ゲームモード 0${activeMode}`;
 
-      if (message === "STATUS:FINISHED") {
-        sub.innerText = "ゲーム終了";
-      }
-    }
+            const display = document.getElementById('battleDisplay');
 
-    async function launchGame() {
-      // iPhoneで音を鳴らせるよう、スタートボタンを押した時点で準備する
-      preparePhoneAudio();
+            // 💡 モード5のときは画面を即座にゲーム中表示に切り替えて、ESP32へコマンド送信！
+            if (activeMode === 5) {
+                display.innerHTML = `<p id="mainOutput" style="font-size:3.5rem; color:#4ade80;">0 回</p><p id="subOutput">⚡ 両手連打アタック中！</p>`;
+                await sendData(`MODE:5`);
+            } else {
+                display.innerHTML = `<p id="mainOutput" style="font-size:2.2rem; color:#facc15;">待機中...</p><p id="subOutput">全員鉄板に手を置いてください</p>`;
+                await sendData(`MODE:${activeMode}`);
+            }
+        }
 
-      document.getElementById("menuView").classList.remove("active");
-      document.getElementById("gameView").classList.add("active");
-
-      document.getElementById("alertBanner").style.display = "none";
-      document.getElementById("modeTitle").innerText =
-        `ゲームモード 0${activeMode}`;
-
-      const display = document.getElementById("battleDisplay");
-
-      if (activeMode === 5) {
-        display.innerHTML =
-          '<p id="mainOutput" style="font-size:3.5rem; color:#facc15;">準備中</p>' +
-          '<p id="subOutput">カウントダウンを待っています</p>';
-
-        await sendData("MODE:5");
-      } else {
-        display.innerHTML =
-          '<p id="mainOutput" style="font-size:2.2rem; color:#facc15;">待機中...</p>' +
-          '<p id="subOutput">全員、タッチセンサーに触れてください</p>';
-
-        await sendData(`MODE:${activeMode}`);
-      }
-    }
-
-    async function returnMenu() {
-      await sendData("MODE:1");
-
-      document.getElementById("gameView").classList.remove("active");
-      document.getElementById("menuView").classList.add("active");
-    }
-  </script>
+        async function returnMenu() {
+            await sendData(`MODE:1`);
+            document.getElementById('gameView').classList.remove('active');
+            document.getElementById('menuView').classList.add('active');
+        }
+    </script>
 </body>
 </html>
