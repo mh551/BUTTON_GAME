@@ -214,6 +214,29 @@
       color: #fff;
       border: 1px solid #38bdf8;
     }
+
+    #mode2Board {
+      display: none;
+      width: 100%;
+      margin-top: 18px;
+      border-collapse: collapse;
+      color: #e5e7eb;
+    }
+
+    #mode2Board th,
+    #mode2Board td {
+      padding: 8px 5px;
+      border-bottom: 1px solid #1e3a8a;
+    }
+
+    #mode2Board th {
+      color: #38bdf8;
+      font-size: 0.8rem;
+    }
+
+    #mode2Board td {
+      font-size: 0.95rem;
+    }
   </style>
 </head>
 
@@ -247,7 +270,7 @@
       </button>
 
       <button class="cyber-btn mode-btn" onclick="setMode(2, this)">
-        02. モード2
+        02. 連打バトル
       </button>
 
       <button class="cyber-btn mode-btn" onclick="setMode(3, this)">
@@ -263,7 +286,7 @@
       </button>
     </div>
 
-    <button class="cyber-btn" id="launchBtn" onclick="launchGame()">
+    <button class="cyber-btn" id="launchBtn" onclick="startSelectedGame()">
       ゲームスタート
     </button>
   </div>
@@ -278,20 +301,30 @@
     <div id="battleDisplay">
       <div class="stats">
         <div class="stat-card">
-          <span class="stat-label">スコア</span>
+          <span class="stat-label" id="leftStatLabel">スコア</span>
           <span class="stat-value" id="scoreValue">0</span>
         </div>
 
         <div class="stat-card">
-          <span class="stat-label">残り時間</span>
+          <span class="stat-label" id="rightStatLabel">残り時間</span>
           <span class="stat-value" id="timeValue">--</span>
         </div>
       </div>
 
       <p id="subOutput">信号を待っています</p>
+
+      <table id="mode2Board">
+        <thead>
+          <tr>
+            <th>プレイヤー</th>
+            <th>連打数 / 目標</th>
+          </tr>
+        </thead>
+        <tbody id="mode2Scores"></tbody>
+      </table>
     </div>
 
-    <button class="cyber-btn" id="replayBtn" onclick="replayGame()">
+    <button class="cyber-btn" id="replayBtn" onclick="startSelectedGame()">
       もう一度プレイ
     </button>
 
@@ -311,6 +344,7 @@
     let activeMode = 1;
     let audioContext = null;
     let selectedPlayers = 2;
+    let mode2Target = 25;
 
     async function toggleConnection() {
       if (!device || !device.gatt.connected) {
@@ -493,8 +527,23 @@
       oscillator.stop(now + duration + 0.02);
     }
 
-    function showReplayButton() {
-      document.getElementById("replayBtn").style.display = "block";
+    function renderMode2Scores(counts) {
+      const tbody = document.getElementById("mode2Scores");
+      tbody.innerHTML = "";
+
+      for (let i = 0; i < selectedPlayers; i++) {
+        const row = document.createElement("tr");
+        const playerCell = document.createElement("td");
+        const countCell = document.createElement("td");
+
+        playerCell.textContent = `P${i + 1}`;
+        countCell.textContent =
+          `${counts[i] || 0} / ${mode2Target}`;
+
+        row.appendChild(playerCell);
+        row.appendChild(countCell);
+        tbody.appendChild(row);
+      }
     }
 
     function onReceive(event) {
@@ -511,6 +560,76 @@
       const scoreValue = document.getElementById("scoreValue");
       const timeValue = document.getElementById("timeValue");
       const sub = document.getElementById("subOutput");
+
+      if (message.startsWith("MODE2:ABORT:")) {
+        const playerLabel = message.substring("MODE2:ABORT:".length);
+        const playerNumber = playerLabel.replace("P", "");
+
+        alertBox.style.display = "block";
+        alertBox.innerText =
+          `プレイヤー${playerNumber}がフライングしました。ゲーム中止`;
+        sub.innerText = "フライングのためゲーム中止";
+        playPhoneErrorSound();
+        return;
+      }
+
+      if (message === "MODE2:WAIT") {
+        document.getElementById("mode2Board").style.display = "table";
+        document.getElementById("leftStatLabel").innerText = "目標回数";
+        document.getElementById("rightStatLabel").innerText = "経過時間";
+        scoreValue.innerText = "--";
+        timeValue.innerText = "--";
+        sub.innerText = "目標回数が表示されるまで待ってください";
+        return;
+      }
+
+      if (message.startsWith("MODE2:START:")) {
+        const parts = message.split(":");
+        mode2Target = Number(parts[2]);
+
+        document.getElementById("mode2Board").style.display = "table";
+        document.getElementById("leftStatLabel").innerText = "目標回数";
+        document.getElementById("rightStatLabel").innerText = "経過時間";
+
+        scoreValue.innerText = String(mode2Target);
+        timeValue.innerText = "0秒";
+        sub.innerText =
+          `合図！最初に${mode2Target}回を達成してください`;
+
+        renderMode2Scores(
+          new Array(selectedPlayers).fill(0)
+        );
+        return;
+      }
+
+      if (message.startsWith("MODE2:ELAPSED:")) {
+        const seconds = message.substring(
+          "MODE2:ELAPSED:".length
+        );
+        timeValue.innerText = `${seconds}秒`;
+        return;
+      }
+
+      if (message.startsWith("MODE2:COUNTS:")) {
+        const values = message
+          .substring("MODE2:COUNTS:".length)
+          .split(",")
+          .map(value => Number(value));
+
+        renderMode2Scores(values);
+        return;
+      }
+
+      if (message.startsWith("MODE2:RESULT:WINNER:")) {
+        const winner = message.substring(
+          "MODE2:RESULT:WINNER:".length
+        );
+
+        alertBox.style.display = "block";
+        alertBox.innerText = `${winner} が目標達成！`;
+        sub.innerText = "勝者以外にペナルティ";
+        return;
+      }
 
       if (message.startsWith("MODE1:ABORT:")) {
         const playerLabel = message.substring("MODE1:ABORT:".length);
@@ -558,7 +677,9 @@
       }
 
       if (message.startsWith("TIMELEFT:")) {
-        const seconds = Number(message.substring("TIMELEFT:".length));
+        const seconds = Number(
+          message.substring("TIMELEFT:".length)
+        );
 
         timeValue.innerText = String(seconds);
         timeValue.classList.toggle("urgent", seconds <= 5);
@@ -579,7 +700,8 @@
       }
 
       if (message.startsWith("SOLO_SCORE:")) {
-        scoreValue.innerText = message.substring("SOLO_SCORE:".length);
+        scoreValue.innerText =
+          message.substring("SOLO_SCORE:".length);
         sub.innerText = "光ったボタンを押してください";
         alertBox.style.display = "none";
         return;
@@ -610,7 +732,7 @@
 
       if (message === "STATUS:FINISHED") {
         sub.innerText = "ゲーム終了";
-        showReplayButton();
+        document.getElementById("replayBtn").style.display = "block";
       }
     }
 
@@ -619,25 +741,42 @@
 
       document.getElementById("menuView").classList.remove("active");
       document.getElementById("gameView").classList.add("active");
-
       document.getElementById("alertBanner").style.display = "none";
       document.getElementById("replayBtn").style.display = "none";
-
-      document.getElementById("modeTitle").innerText =
-        `ゲームモード 0${activeMode}`;
 
       const scoreValue = document.getElementById("scoreValue");
       const timeValue = document.getElementById("timeValue");
       const sub = document.getElementById("subOutput");
+      const board = document.getElementById("mode2Board");
+
+      document.getElementById("modeTitle").innerText =
+        `ゲームモード 0${activeMode}`;
 
       await sendData(`PLAYERS:${selectedPlayers}`);
 
-      if (activeMode === 5) {
+      if (activeMode === 2) {
+        board.style.display = "table";
+        document.getElementById("leftStatLabel").innerText = "目標回数";
+        document.getElementById("rightStatLabel").innerText = "経過時間";
+        scoreValue.innerText = "--";
+        timeValue.innerText = "--";
+        timeValue.classList.remove("urgent");
+        sub.innerText = "目標回数が表示されるまで待ってください";
+        renderMode2Scores(
+          new Array(selectedPlayers).fill(0)
+        );
+      } else if (activeMode === 5) {
+        board.style.display = "none";
+        document.getElementById("leftStatLabel").innerText = "スコア";
+        document.getElementById("rightStatLabel").innerText = "残り時間";
         scoreValue.innerText = "0";
         timeValue.innerText = "60";
         timeValue.classList.remove("urgent");
         sub.innerText = "カウントダウンを待っています";
       } else {
+        board.style.display = "none";
+        document.getElementById("leftStatLabel").innerText = "スコア";
+        document.getElementById("rightStatLabel").innerText = "残り時間";
         scoreValue.innerText = "0";
         timeValue.innerText = "--";
         timeValue.classList.remove("urgent");
@@ -645,14 +784,6 @@
       }
 
       await sendData(`MODE:${activeMode}`);
-    }
-
-    async function launchGame() {
-      await startSelectedGame();
-    }
-
-    async function replayGame() {
-      await startSelectedGame();
     }
 
     async function returnMenu() {
