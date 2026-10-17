@@ -366,7 +366,7 @@
       playPhoneBuzzer(180, 0.55, 1.0);
     }
 
-    // 残り0秒で鳴らす長い「ブー」
+    // タイムアップ時に鳴らす長い「ブー」
     function playPhoneTimeUpSound() {
       playPhoneBuzzer(120, 1.6, 1.0);
     }
@@ -425,7 +425,6 @@
 
         if (seconds === 0) {
           sub.innerText = "タイムアップ";
-          playPhoneTimeUpSound();
         } else {
           sub.innerText = "光ったボタンを押してください";
         }
@@ -466,6 +465,12 @@
       if (message.startsWith("ALERT:")) {
         alertBox.style.display = "block";
         alertBox.innerText = message.substring("ALERT:".length);
+
+        // 「タイムアップ」の通知を受け取った時に長いブザー音
+        if (message.includes("タイムアップ")) {
+          playPhoneTimeUpSound();
+        }
+
         return;
       }
 
@@ -481,7 +486,6 @@
     }
 
     async function launchGame() {
-      // スタート操作時にiPhoneの音声を準備
       preparePhoneAudio();
 
       document.getElementById("menuView").classList.remove("active");
