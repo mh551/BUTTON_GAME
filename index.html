@@ -308,25 +308,6 @@
             txCharacteristic = null;
         }
 
-        // スマホ側で自律的に3秒カウントダウンを実行する関数
-        function runBrowserCountdown() {
-            const display = document.getElementById('dynamicDisplay');
-            let count = 3;
-
-            display.innerHTML = `<p id="bigMainText" style="color:#ff9800; font-size:3rem; margin:0;">⏳ ${count}</p><p id="subText" style="color:#b0bec5; margin-top:10px;">まもなくスタート！</p>`;
-            playBeep(0);
-
-            let timer = setInterval(() => {
-                count--;
-                if (count > 0) {
-                    display.innerHTML = `<p id="bigMainText" style="color:#ff9800; font-size:3rem; margin:0;">⏳ ${count}</p><p id="subText" style="color:#b0bec5; margin-top:10px;">まもなくスタート！</p>`;
-                    playBeep(0);
-                } else {
-                    clearInterval(timer);
-                }
-            }, 1000);
-        }
-
         // ESP32からの通知を受け取る関数
         function handleNotifications(event) {
             let value = new TextDecoder().decode(event.target.value);
@@ -363,10 +344,6 @@
                 alertBox.style.display = "block";
                 alertBox.style.backgroundColor = "#2e7d32";
                 alertBox.innerText = "✨ 全員セット完了！";
-            }
-            else if (value === "START_COUNTDOWN") {
-                alertBox.style.display = "none";
-                runBrowserCountdown(); // スマホ側で綺麗にカウントダウンを回す！
             }
             else if (value.startsWith("SOLO_SCORE:")) {
                 let score = value.split(":")[1];
@@ -453,6 +430,7 @@
             document.getElementById('p4Group').style.display = (num >= 4) ? 'flex' : 'none';
         }
 
+        // 🚀 スタートボタンを押したときの処理（完全に独立したカウントダウン＋Bluetooth送信）
         async function sendGameStart() {
             initAudio();
 
@@ -466,25 +444,44 @@
             document.getElementById('activeModeTitle').innerText = `⚔️ モード ${selectedMode} ライブモニター`;
 
             const display = document.getElementById('dynamicDisplay');
-            if (selectedMode === 4) {
-                let html = `<div class="score-grid">`;
-                for (let i = 0; i < selectedPlayers; i++) {
-                    html += `<div class="score-card">${playerNames[i]}<br><span>0</span>回</div>`;
-                }
-                html += `</div>`;
-                display.innerHTML = html;
-            } else if (selectedMode === 5) {
-                display.innerHTML = `<p id="bigMainText" style="color:#ff9800; font-size:3rem; margin:0;">⏳ 3</p><p id="subText" style="color:#b0bec5; margin-top:10px;">まもなくスタート！</p>`;
-                playBeep(0);
-            } else {
-                display.innerHTML = `<p id="bigMainText" style="color:#ffeb3b; font-size:2.5rem; margin:0;">待機中...</p><p id="subText" style="color:#b0bec5; margin-top:10px;">鉄板に手を置いてください</p>`;
-            }
 
-            if (selectedMode !== 5) {
+            if (selectedMode === 5) {
+                // --- モード5専用：スマホ側だけで確実に3秒カウントダウンを回す ---
+                let count = 3;
+                display.innerHTML = `<p id="bigMainText" style="color:#ff9800; font-size:3rem; margin:0;">⏳ ${count}</p><p id="subText" style="color:#b0bec5; margin-top:10px;">まもなくスタート！</p>`;
+                playBeep(0);
+
+                // 1秒ごとにカウントダウンを進めるタイマー
+                let countdownInterval = setInterval(async () => {
+                    count--;
+                    if (count > 0) {
+                        display.innerHTML = `<p id="bigMainText" style="color:#ff9800; font-size:3rem; margin:0;">⏳ ${count}</p><p id="subText" style="color:#b0bec5; margin-top:10px;">まもなくスタート！</p>`;
+                        playBeep(0);
+                    } else {
+                        clearInterval(countdownInterval);
+                        display.innerHTML = `<p id="bigMainText" style="color:#4caf50; font-size:3rem; margin:0;">0 回</p><p id="subText" style="color:#b0bec5; margin-top:10px;">両手連打アタック中！</p>`;
+                        // カウントダウン終了後にESP32へモード5開始を送信
+                        await sendData(`MODE:5`);
+                    }
+                }, 1000);
+
+            } else {
+                // --- その他のマルチプレイモード ---
+                if (selectedMode === 4) {
+                    let html = `<div class="score-grid">`;
+                    for (let i = 0; i < selectedPlayers; i++) {
+                        html += `<div class="score-card">${playerNames[i]}<br><span>0</span>回</div>`;
+                    }
+                    html += `</div>`;
+                    display.innerHTML = html;
+                } else {
+                    display.innerHTML = `<p id="bigMainText" style="color:#ffeb3b; font-size:2.5rem; margin:0;">待機中...</p><p id="subText" style="color:#b0bec5; margin-top:10px;">鉄板に手を置いてください</p>`;
+                }
+
                 await sendData(`PLAYERS:${selectedPlayers}`);
                 await new Promise(resolve => setTimeout(resolve, 100));
+                await sendData(`MODE:${selectedMode}`);
             }
-            await sendData(`MODE:${selectedMode}`);
         }
 
         function returnToMenu() {
