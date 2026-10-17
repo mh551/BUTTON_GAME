@@ -575,6 +575,15 @@
       const timeValue = document.getElementById("timeValue");
       const sub = document.getElementById("subOutput");
 
+      if (message.startsWith("MODE3:RELEASE:")) {
+        const playerLabel = message.substring("MODE3:RELEASE:".length);
+        const playerNumber = playerLabel.replace("P", "");
+        alertBox.style.display = "block";
+        alertBox.innerText = `プレイヤー${playerNumber}が手を離しました。`;
+        sub.innerText = "手が離れたためゲーム中止";
+        playPhoneErrorSound();
+        return;
+      }
       if (message === "MODE3:WAIT") {
         document.getElementById("mode2Board").style.display = "table";
         document.getElementById("mode2CountHeading").innerText = "連打数";
