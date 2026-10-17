@@ -561,8 +561,22 @@
       const timeValue = document.getElementById("timeValue");
       const sub = document.getElementById("subOutput");
 
+      if (message.startsWith("MODE2:RELEASE:")) {
+        const playerLabel =
+          message.substring("MODE2:RELEASE:".length);
+        const playerNumber = playerLabel.replace("P", "");
+
+        alertBox.style.display = "block";
+        alertBox.innerText =
+          `プレイヤー${playerNumber}が手を離しました。`;
+        sub.innerText = "手が離れたためゲーム中止";
+        playPhoneErrorSound();
+        return;
+      }
+
       if (message.startsWith("MODE2:ABORT:")) {
-        const playerLabel = message.substring("MODE2:ABORT:".length);
+        const playerLabel =
+          message.substring("MODE2:ABORT:".length);
         const playerNumber = playerLabel.replace("P", "");
 
         alertBox.style.display = "block";
@@ -632,7 +646,8 @@
       }
 
       if (message.startsWith("MODE1:ABORT:")) {
-        const playerLabel = message.substring("MODE1:ABORT:".length);
+        const playerLabel =
+          message.substring("MODE1:ABORT:".length);
         const playerNumber = playerLabel.replace("P", "");
 
         alertBox.style.display = "block";
