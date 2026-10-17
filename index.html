@@ -430,7 +430,7 @@
             document.getElementById('p4Group').style.display = (num >= 4) ? 'flex' : 'none';
         }
 
-        // 🚀 スタートボタンを押したときの処理（完全に独立したカウントダウン＋Bluetooth送信）
+        // 🚀 スタートボタンを押したときの処理（非同期awaitを用いた確実なカウントダウン）
         async function sendGameStart() {
             initAudio();
 
@@ -446,24 +446,23 @@
             const display = document.getElementById('dynamicDisplay');
 
             if (selectedMode === 5) {
-                // --- モード5専用：スマホ側だけで確実に3秒カウントダウンを回す ---
-                let count = 3;
-                display.innerHTML = `<p id="bigMainText" style="color:#ff9800; font-size:3rem; margin:0;">⏳ ${count}</p><p id="subText" style="color:#b0bec5; margin-top:10px;">まもなくスタート！</p>`;
+                // --- モード5専用：非同期スリープを用いた確実な3秒カウントダウン ---
+                display.innerHTML = `<p id="bigMainText" style="color:#ff9800; font-size:3rem; margin:0;">⏳ 3</p><p id="subText" style="color:#b0bec5; margin-top:10px;">まもなくスタート！</p>`;
                 playBeep(0);
 
-                // 1秒ごとにカウントダウンを進めるタイマー
-                let countdownInterval = setInterval(async () => {
-                    count--;
-                    if (count > 0) {
-                        display.innerHTML = `<p id="bigMainText" style="color:#ff9800; font-size:3rem; margin:0;">⏳ ${count}</p><p id="subText" style="color:#b0bec5; margin-top:10px;">まもなくスタート！</p>`;
-                        playBeep(0);
-                    } else {
-                        clearInterval(countdownInterval);
-                        display.innerHTML = `<p id="bigMainText" style="color:#4caf50; font-size:3rem; margin:0;">0 回</p><p id="subText" style="color:#b0bec5; margin-top:10px;">両手連打アタック中！</p>`;
-                        // カウントダウン終了後にESP32へモード5開始を送信
-                        await sendData(`MODE:5`);
-                    }
-                }, 1000);
+                await new Promise(r => setTimeout(r, 1000));
+                display.innerHTML = `<p id="bigMainText" style="color:#ff9800; font-size:3rem; margin:0;">⏳ 2</p><p id="subText" style="color:#b0bec5; margin-top:10px;">まもなくスタート！</p>`;
+                playBeep(0);
+
+                await new Promise(r => setTimeout(r, 1000));
+                display.innerHTML = `<p id="bigMainText" style="color:#ff9800; font-size:3rem; margin:0;">⏳ 1</p><p id="subText" style="color:#b0bec5; margin-top:10px;">まもなくスタート！</p>`;
+                playBeep(0);
+
+                await new Promise(r => setTimeout(r, 1000));
+                display.innerHTML = `<p id="bigMainText" style="color:#4caf50; font-size:3rem; margin:0;">0 回</p><p id="subText" style="color:#b0bec5; margin-top:10px;">両手連打アタック中！</p>`;
+                
+                // カウントダウン完了後にESP32へモード5開始を送信
+                await sendData(`MODE:5`);
 
             } else {
                 // --- その他のマルチプレイモード ---
