@@ -308,16 +308,34 @@
             txCharacteristic = null;
         }
 
+        // スマホ側で自律的に3秒カウントダウンを実行する関数
+        function runBrowserCountdown() {
+            const display = document.getElementById('dynamicDisplay');
+            let count = 3;
+
+            display.innerHTML = `<p id="bigMainText" style="color:#ff9800; font-size:3rem; margin:0;">⏳ ${count}</p><p id="subText" style="color:#b0bec5; margin-top:10px;">まもなくスタート！</p>`;
+            playBeep(0);
+
+            let timer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    display.innerHTML = `<p id="bigMainText" style="color:#ff9800; font-size:3rem; margin:0;">⏳ ${count}</p><p id="subText" style="color:#b0bec5; margin-top:10px;">まもなくスタート！</p>`;
+                    playBeep(0);
+                } else {
+                    clearInterval(timer);
+                }
+            }, 1000);
+        }
+
         // ESP32からの通知を受け取る関数
         function handleNotifications(event) {
             let value = new TextDecoder().decode(event.target.value);
-            value = value.trim(); // 余分な改行や空白を削除
+            value = value.trim();
             console.log("【スマホ受信】:", value);
 
             const alertBox = document.getElementById('liveAlertBox');
             const display = document.getElementById('dynamicDisplay');
 
-            // 毎回確実にテキスト要素を再構築して確実に文字を更新できるようにする
             let bigText = document.getElementById('bigMainText');
             let subText = document.getElementById('subText');
 
@@ -346,13 +364,9 @@
                 alertBox.style.backgroundColor = "#2e7d32";
                 alertBox.innerText = "✨ 全員セット完了！";
             }
-            else if (value.startsWith("COUNTDOWN:")) {
-                let sec = value.split(":")[1];
+            else if (value === "START_COUNTDOWN") {
                 alertBox.style.display = "none";
-                
-                // カウントダウン画面のHTMLを強制的に上書き生成して確実に更新させる
-                display.innerHTML = `<p id="bigMainText" style="color:#ff9800; font-size:3rem; margin:0;">⏳ ${sec}</p><p id="subText" style="color:#b0bec5; margin-top:10px;">まもなくスタート！</p>`;
-                playBeep(0);
+                runBrowserCountdown(); // スマホ側で綺麗にカウントダウンを回す！
             }
             else if (value.startsWith("SOLO_SCORE:")) {
                 let score = value.split(":")[1];
